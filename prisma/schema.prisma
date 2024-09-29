@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MoeNew {
+  order_code                    String
+  order_date                    DateTime
+  order_time                    String
+  order_status                  String
+  transaction_website           String
+  product_sku                   String
+  item_name                     String
+  product_name                  String
+  product_category              String
+  product_line                  String
+  product_quantity              Int
+  product_revenue_euro_notax    Float
+  order_currency                String
+  order_taxrate                 Float
+  gift                          String
+  bundles_and_sets              String
+  discount_vat_excluded_euro    Float
+  order_valuepaidwithloyalty_euro Float
+  catalogue_price_notax         Float
+  order_hashedemail             String
+  gender                        String
+  order_number                  Int
+  customer_type                 String
+  shipping_cost_euro            Float
+  order_country                 String
+  order_region                  String
+  order_city                    String
+  order_payment_subcategory     String
+  payment_method                String
+  order_coupon_magentorule      String?
+  order_coupon_code             String?
+  source_medium                 String
+  first_level_source            String
+  campaign                      String?
+  landing_page_path             String?
+
+  @@id([order_code, product_sku])
+  @@map("bluelagoon_skincare_consulting_prod.moe_new")
+}

@@ -1,11 +1,14 @@
 "use client";
 
-
 import { cn } from "@/lib/utils";
-import { CodeBlock } from "../ui/codeblock";
+import { CodeBlock } from "./ui/codeblock";
 import { StreamableValue, useStreamableValue } from "ai/rsc";
 import { useStreamableText } from "@/lib/hooks/use-streamable-text";
 import React from "react";
+import { IconOpenAI, IconUser } from "./ui/icons";
+import { MemoizedReactMarkdown } from "./markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 // Different types of message bubbles.
 
@@ -84,10 +87,7 @@ export function BotMessage({
 
               return (
                 <CodeBlock
-                  key={Math.random()}
-                  language={(match && match[1]) || ""}
-                  value={String(children).replace(/\n$/, "")}
-                  {...props}
+                  value={String(children)}
                 />
               );
             },
@@ -100,27 +100,27 @@ export function BotMessage({
   );
 }
 
-export function BotCard({
-  children,
-  showAvatar = true,
-}: {
-  children: React.ReactNode;
-  showAvatar?: boolean;
-}) {
-  return (
-    <div className="group relative flex items-start md:-ml-12">
-      <div
-        className={cn(
-          "flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm",
-          !showAvatar && "invisible"
-        )}
-      >
-        <IconOpenAI />
-      </div>
-      <div className="ml-4 flex-1 pl-2">{children}</div>
-    </div>
-  );
-}
+// export function BotCard({
+//   children,
+//   showAvatar = true,
+// }: {
+//   children: React.ReactNode;
+//   showAvatar?: boolean;
+// }) {
+//   return (
+//     <div className="group relative flex items-start md:-ml-12">
+//       <div
+//         className={cn(
+//           "flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm",
+//           !showAvatar && "invisible"
+//         )}
+//       >
+//         <IconOpenAI />
+//       </div>
+//       <div className="ml-4 flex-1 pl-2">{children}</div>
+//     </div>
+//   );
+// }
 
 export function SystemMessage({ children }: { children: React.ReactNode }) {
   return (
@@ -134,15 +134,15 @@ export function SystemMessage({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SpinnerMessage() {
-  return (
-    <div className="group relative flex items-start md:-ml-12">
-      <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
-        <IconOpenAI />
-      </div>
-      <div className="ml-4 h-[24px] flex flex-row items-center flex-1 space-y-2 overflow-hidden px-1">
-        {spinner}
-      </div>
-    </div>
-  );
-}
+// export function SpinnerMessage() {
+//   return (
+//     <div className="group relative flex items-start md:-ml-12">
+//       <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
+//         <IconOpenAI />
+//       </div>
+//       <div className="ml-4 h-[24px] flex flex-row items-center flex-1 space-y-2 overflow-hidden px-1">
+//         {spinner}
+//       </div>
+//     </div>
+//   );
+// }

@@ -1,30 +1,31 @@
 "use server";
 
-import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createStreamableValue } from "ai/rsc";
 import { prisma } from "@/lib/prisma";
+import { generateObject } from "ai";
+import { tableSchema } from "@/lib/ai-config";
+import { z } from "zod";
 
-export async function generate(input: string) {
-  const stream = createStreamableValue("");
+export async function translateSQL(userQuestion: string) {
+  const prompt = `
+    You are an expert in PostgreSQL and have intimate knowledge of this table schema: ${tableSchema}
 
-  (async () => {
-    const { textStream } = await streamText({
-      model: openai("gpt-4o-mini"),
-      prompt: input,
-    });
+    Read the user question: ${userQuestion}, reason about what to extract from the database to best answer the user question, 
+    and output a valid PostgreSQL SELECT query.
+    `;
 
-    for await (const delta of textStream) {
-      stream.update(delta);
-    }
-
-    stream.done();
-  })();
-
-  return { output: stream.value };
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    prompt: prompt,
+    output: "array",
+    schema: z.object({
+      query: z.string().describe("The SQL query"),
+    }),
+  });
+  return object[0].query;
 }
 
-export async function executeSQLQuery(query: string) {
+export async function executeSQL(query: string) {
   try {
     console.log("Connecting to database...");
     const result = await prisma.$queryRawUnsafe(query);

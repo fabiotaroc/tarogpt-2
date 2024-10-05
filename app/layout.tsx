@@ -1,11 +1,11 @@
-import './globals.css';
-import { Inter } from 'next/font/google';
+import "./globals.css";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'AI Chatbot',
-  description: 'A simple AI chatbot using Vercel AI SDK',
+  title: "TaroGPT",
+  description: "Talk to your database",
 };
 
 export default function RootLayout({
@@ -19,3 +19,10 @@ export default function RootLayout({
     </html>
   );
 }
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
+};

@@ -7,6 +7,7 @@ import { CodeBlock } from "@/components/ui/codeblock";
 import { convertBigIntToString } from "@/lib/utils";
 import { QueryResultTable } from "@/components/ui/query-result-table";
 import { Input } from "@/components/ui/input";
+import { FooterText } from "@/components/footer";
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -28,11 +29,12 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-2xl space-y-4">
+    <>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
         <Input
           type="text"
           placeholder="Enter SQL query"
+          className="w-full bg-background text-foreground"
           onChange={(e) => setQuery(e.target.value)}
         />
         <Button
@@ -48,8 +50,13 @@ export default function Home() {
         <Button variant="default" size="lg" onClick={handleExecute}>
           Execute SQL
         </Button>
-        <QueryResultTable data={queryResult} />
+        <div className="w-full bg-card rounded-md shadow-sm p-4">
+          <QueryResultTable data={queryResult} />
+        </div>
       </div>
-    </main>
+      <div className="bottom-0 left-0 right-0 p-3 bg-background">
+        <FooterText />
+      </div>
+    </>
   );
 }

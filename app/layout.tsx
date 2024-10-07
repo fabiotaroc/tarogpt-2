@@ -1,24 +1,28 @@
-import "./globals.css";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
-const inter = Inter({ subsets: ["latin"] });
+import "@/app/globals.css";
+import { cn } from "@/lib/utils";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
+import { Header } from "@/components/header";
 
 export const metadata = {
-  title: "TaroGPT",
-  description: "Talk to your database",
+  metadataBase: process.env.VERCEL_URL
+    ? new URL(`https://${process.env.VERCEL_URL}`)
+    : undefined,
+  title: {
+    default: "TaroGPT",
+    template: `%s - TaroGPT`,
+  },
+  description: "The AI chatbot that talks to your database.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
-  );
-}
 
 export const viewport = {
   themeColor: [
@@ -26,3 +30,35 @@ export const viewport = {
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
 };
+
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={cn(
+          "font-sans antialiased",
+          GeistSans.variable,
+          GeistMono.variable
+        )}
+      >
+        <Toaster position="top-center" />
+        <Providers
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
+          </div>
+          <TailwindIndicator />
+        </Providers>
+      </body>
+    </html>
+  );
+}

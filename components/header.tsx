@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { LinkedInLogoIcon, GitHubLogoIcon } from '@radix-ui/react-icons'
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   return (
@@ -26,6 +27,9 @@ export function Header() {
           >
             <GitHubLogoIcon className="w-6 h-6" />
           </Link>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </div>
     </header>

@@ -9,23 +9,38 @@ import { QueryResultTable } from "@/components/ui/query-result-table";
 import { Input } from "@/components/ui/input";
 import { FooterText } from "@/components/footer";
 
+// Define a type for possible cell values
+type CellValue = string | number | Date | bigint | boolean | null | undefined;
+
+// Define a type for the row data
+type RowData = Record<string, CellValue>;
+
 export default function Home() {
   const [query, setQuery] = useState("");
   const [sql, setSQL] = useState("");
-  const [queryResult, setQueryResult] = useState<any[]>([]);
+  const [queryResult, setQueryResult] = useState<RowData[]>([]);
 
   const handleTranslate = async () => {
     try {
       const result = await translateSQL(query);
-      setSQL(convertBigIntToString(result));
+      setSQL(result);
     } catch (error) {
       console.error("Error in handleTranslate:", error);
     }
   };
 
   const handleExecute = async () => {
-    const result = await executeSQL(sql);
-    setQueryResult(result.data as any[]);
+    try {
+      const result = await executeSQL(sql);
+      if (result.success) {
+        setQueryResult(convertBigIntToString(result.data) as RowData[]);
+      } else {
+        console.error("Error executing SQL:", result.error);
+        // You might want to set an error state here and display it to the user
+      }
+    } catch (error) {
+      console.error("Error in handleExecute:", error);
+    }
   };
 
   return (
@@ -40,9 +55,7 @@ export default function Home() {
         <Button
           variant="default"
           size="lg"
-          onClick={() => {
-            handleTranslate();
-          }}
+          onClick={handleTranslate}
         >
           Translate Query
         </Button>

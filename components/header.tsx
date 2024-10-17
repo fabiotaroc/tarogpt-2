@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { LinkedInLogoIcon, GitHubLogoIcon } from '@radix-ui/react-icons'
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   return (

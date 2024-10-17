@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function convertBigIntToString(value: any): any {
+export function convertBigIntToString(value: unknown): unknown {
   // Handle null and undefined
   if (value === null || value === undefined) {
     return value;
@@ -27,7 +27,7 @@ export function convertBigIntToString(value: any): any {
   }
 
   // Handle plain objects
-  if (typeof value === "object" && value.constructor === Object) {
+  if (typeof value === "object" && value !== null && value.constructor === Object) {
     return Object.fromEntries(
       Object.entries(value).map(([key, val]) => [
         key,

@@ -12,8 +12,14 @@ import { Button } from "@/components/ui/button";
 import { IconDownload } from "@/components/ui/icons";
 import { format } from "date-fns";
 
+// Define a type for possible cell values
+type CellValue = string | number | Date | bigint | boolean | null | undefined;
+
+// Define a type for the row data
+type RowData = Record<string, CellValue>;
+
 interface QueryResultTableProps {
-  data: any[];
+  data: RowData[];
 }
 
 export function QueryResultTable({ data }: QueryResultTableProps) {
@@ -24,7 +30,10 @@ export function QueryResultTable({ data }: QueryResultTableProps) {
   const headers = Object.keys(data[0]);
   const previewData = data.slice(0, 10); // Limit to 10 rows
 
-  const formatValue = (value: any) => {
+  const formatValue = (value: CellValue): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
     if (typeof value === "string") {
       return value.replace(/^"|"$/g, "");
     }
@@ -37,7 +46,7 @@ export function QueryResultTable({ data }: QueryResultTableProps) {
     if (typeof value === "bigint") {
       return value.toString();
     }
-    return String(value); // Ensure all other types are converted to strings
+    return String(value);
   };
 
   const csvContent = [
@@ -46,11 +55,7 @@ export function QueryResultTable({ data }: QueryResultTableProps) {
       headers
         .map((header) => {
           const value = formatValue(row[header]);
-          if (typeof value === "string") {
-            return `"${value.replace(/"/g, '""')}"`;
-          } else {
-            return String(value);
-          }
+          return `"${value.replace(/"/g, '""')}"`;
         })
         .join(",")
     ),

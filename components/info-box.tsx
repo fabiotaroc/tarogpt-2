@@ -2,13 +2,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export function InfoBox() {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-muted">
       <CardHeader>
         <CardTitle>About TaroGPT</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          Ask questions about your data in natural language. TaroGPT will translate your questions into SQL and execute them against your database.
+          Ask questions about your data in natural language. TaroGPT will
+          translate your questions into SQL and execute them against your
+          database.
         </p>
         <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
           <li>Translate natural language to SQL</li>

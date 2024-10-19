@@ -4,11 +4,11 @@ import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   return (
-    <header className="bg-background border-b border-border py-4 px-6 shadow-sm">
-      <div className="container mx-auto flex items-center justify-between">
+    <header className="bg-background border-b-2 border-border py-4 px-6 shadow-md">
+      <div className="container max-w-screen-xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center">
-            <span className="text-lg font-bold text-foreground">TaroGPT</span>
+            <span className="text-2xl font-bold text-foreground">TaroGPT</span>
           </Link>
           <Link
             href="https://github.com/fabiotaroc"

@@ -58,7 +58,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           >
             <div className="flex flex-col min-h-screen">
               <Header />
-              <main className="flex flex-col flex-1 bg-muted/50">
+              <main className="flex flex-col flex-1 bg-gradient-to-b from-background to-secondary">
                 {children}
               </main>
             </div>

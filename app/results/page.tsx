@@ -1,6 +1,6 @@
 import { executeSQL } from "@/app/actions";
 import { CodeBlock } from "@/components/ui/codeblock";
-import { QueryResultTable } from "@/components/ui/query-result-table";
+import { QueryResultTable, RowData } from "@/components/ui/query-result-table";
 import { convertBigIntToString } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
@@ -13,7 +13,7 @@ export default async function QueryPage({
   const result = await executeSQL(sql);
 
   const queryResult = result.success
-    ? (convertBigIntToString(result.data) as Record<string, any>[])
+    ? (convertBigIntToString(result.data) as RowData[])
     : [];
 
   return (

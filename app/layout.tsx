@@ -19,7 +19,7 @@ export const metadata = {
     default: "TaroGPT",
     template: `%s - TaroGPT`,
   },
-  description: "The AI chatbot that talks to your database.",
+  description: "Talk to your database in natural language.",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",

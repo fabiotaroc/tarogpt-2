@@ -13,12 +13,12 @@ import { IconDownload } from "@/components/ui/icons";
 import { format } from "date-fns";
 
 // Define a type for possible cell values
-type CellValue = string | number | Date | bigint | boolean | null | undefined;
+export type CellValue = string | number | Date | bigint | boolean | null | undefined;
 
 // Define a type for the row data
-type RowData = Record<string, CellValue>;
+export type RowData = Record<string, CellValue>;
 
-interface QueryResultTableProps {
+export interface QueryResultTableProps {
   data: RowData[];
 }
 

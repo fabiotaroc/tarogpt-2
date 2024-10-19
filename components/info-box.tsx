@@ -8,7 +8,7 @@ export function InfoBox() {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          Ask questions about your data in natural language. 
+          Ask questions about your data in natural language. TaroGPT will translate your questions into SQL and execute them against your database.
         </p>
         <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
           <li>Translate natural language to SQL</li>

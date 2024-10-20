@@ -4,7 +4,7 @@ import { QueryResultTable, RowData } from "@/components/ui/query-result-table";
 import { convertBigIntToString } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
-export default async function QueryPage({
+export default async function ResultsPage({
   searchParams,
 }: {
   searchParams: { sql: string };

@@ -12,22 +12,24 @@ export function QueryForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsLoading(true);
-    try {
-      const translatedQuery = await translateSQL(query);
-      router.push(
-        `/results?sql=${encodeURIComponent(translatedQuery)}&question=${encodeURIComponent(query)}`
-      );
-    } catch (error) {
-      console.error("Error translating query:", error);
-      // Handle error (e.g., show an error message to the user)
-    } finally {
-      setIsLoading(false);
-    }
+    translateSQL(query)
+      .then((translatedQuery) => {
+        router.push(
+          `/results?sql=${encodeURIComponent(translatedQuery)}&question=${encodeURIComponent(query)}`
+        );
+      })
+      .catch((error) => {
+        console.error("Error translating query:", error);
+        // Handle error (e.g., show an error message to the user)
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (

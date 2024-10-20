@@ -19,7 +19,9 @@ export function QueryForm() {
     setIsLoading(true);
     try {
       const translatedQuery = await translateSQL(query);
-      router.push(`/results?sql=${encodeURIComponent(translatedQuery)}&question=${encodeURIComponent(query)}`);
+      router.push(
+        `/results?sql=${encodeURIComponent(translatedQuery)}&question=${encodeURIComponent(query)}`
+      );
     } catch (error) {
       console.error("Error translating query:", error);
       // Handle error (e.g., show an error message to the user)
@@ -29,7 +31,10 @@ export function QueryForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-2xl items-center space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col w-full items-center space-y-6"
+    >
       <div className="relative w-full">
         <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
         <Input
@@ -40,10 +45,10 @@ export function QueryForm() {
           className="text-lg text-foreground bg-background border-2 border-primary shadow-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ease-in-out py-6 px-4 pl-12 rounded-lg"
         />
       </div>
-      <Button 
-        variant="default" 
-        size="lg" 
-        type="submit" 
+      <Button
+        variant="default"
+        size="lg"
+        type="submit"
         disabled={isLoading}
         className="w-full max-w-md text-lg py-6"
       >

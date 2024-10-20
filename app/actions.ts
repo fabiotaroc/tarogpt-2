@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { generateObject } from "ai";
 import { tableSchema } from "@/lib/ai-config";
 import { z } from "zod";
+import { auth } from "@clerk/nextjs/server";
+import { kv } from "@vercel/kv";
 
 export async function translateSQL(userQuestion: string) {
   const prompt = `
@@ -40,4 +42,28 @@ export async function executeSQL(query: string) {
     await prisma.$disconnect();
     console.log("Disconnected from database.");
   }
+}
+
+interface SessionData {
+  queries: string[];
+}
+
+export async function getSession(): Promise<SessionData> {
+  const { userId } = auth();
+  const sessionData = await kv.get<SessionData>(`session:${userId}`);
+  return sessionData || { queries: [] };
+}
+
+export async function updateSession(data: Partial<SessionData>): Promise<void> {
+  const { userId } = auth();
+  const currentSession = await getSession();
+  const updatedSession = { ...currentSession, ...data };
+  await kv.set(`session:${userId}`, updatedSession);
+}
+
+export async function addQueryToSession(query: string): Promise<void> {
+  const { userId } = auth();
+  const session = await getSession();
+  const updatedQueries = [query, ...session.queries];
+  await kv.set(`session:${userId}`, { queries: updatedQueries });
 }

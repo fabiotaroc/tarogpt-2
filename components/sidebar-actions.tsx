@@ -95,7 +95,6 @@ export function SidebarActions({
               disabled={isRemovePending}
               onClick={event => {
                 event.preventDefault()
-                // @ts-ignore
                 startRemoveTransition(async () => {
                   const result = await removeQuery({
                     id: query.id,

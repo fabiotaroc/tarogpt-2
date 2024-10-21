@@ -17,18 +17,18 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 
-interface ChatShareDialogProps extends DialogProps {
+interface QueryShareDialogProps extends DialogProps {
   query: Pick<Query, 'id' | 'question'>
   shareQuery: (id: string) => ServerActionResult<Query>
   onCopy: () => void
 }
 
-export function ChatShareDialog({
+export function QueryShareDialog({
   query,
   shareQuery,
   onCopy,
   ...props
-}: ChatShareDialogProps) {
+}: QueryShareDialogProps) {
   const { copyToClipboard } = useCopyToClipboard({ timeout: 1000 })
   const [isSharePending, startShareTransition] = React.useTransition()
 
@@ -51,9 +51,9 @@ export function ChatShareDialog({
     <Dialog {...props}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Share link to chat</DialogTitle>
+          <DialogTitle>Share link to query</DialogTitle>
           <DialogDescription>
-            Anyone with the URL will be able to view the shared chat.
+            Anyone with the URL will be able to view the shared query.
           </DialogDescription>
         </DialogHeader>
         <div className="p-4 space-y-1 text-sm border rounded-md">
@@ -63,7 +63,6 @@ export function ChatShareDialog({
           <Button
             disabled={isSharePending}
             onClick={() => {
-              // @ts-ignore
               startShareTransition(async () => {
                 const result = await shareQuery(query.id)
 

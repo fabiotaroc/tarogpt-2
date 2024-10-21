@@ -25,7 +25,6 @@ export function QueryForm() {
       })
       .catch((error) => {
         console.error("Error translating query:", error);
-        // Handle error (e.g., show an error message to the user)
       })
       .finally(() => {
         setIsLoading(false);
@@ -33,29 +32,34 @@ export function QueryForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col w-full items-center space-y-6"
-    >
-      <div className="relative w-full">
-        <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-        <Input
-          type="text"
-          placeholder="Enter your question here..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="text-lg text-foreground bg-background border-2 border-primary shadow-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ease-in-out py-6 px-4 pl-12 rounded-lg"
-        />
-      </div>
-      <Button
-        variant="default"
-        size="lg"
-        type="submit"
-        disabled={isLoading}
-        className="w-full max-w-md text-lg py-6"
+    <div className="w-full max-w-screen-md">
+      <h2 className="text-4xl font-bold mb-8 text-center">
+        Ask Questions About Your Data
+      </h2>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col w-full items-center space-y-6"
       >
-        {isLoading ? "Translating..." : "Translate and Execute Query"}
-      </Button>
-    </form>
+        <div className="relative w-full">
+          <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Enter your question here..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="text-lg text-foreground bg-background border-2 border-primary shadow-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ease-in-out py-6 px-4 pl-12 rounded-lg"
+          />
+        </div>
+        <Button
+          variant="default"
+          size="lg"
+          type="submit"
+          disabled={isLoading}
+          className="w-full max-w-md text-lg py-6"
+        >
+          {isLoading ? "Translating..." : "Translate and Execute Query"}
+        </Button>
+      </form>
+    </div>
   );
 }

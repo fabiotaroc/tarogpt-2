@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
-import { ChatShareDialog } from '@/components/chat-share-dialog'
+import { QueryShareDialog } from '@/components/query-share-dialog'
 import {
   Tooltip,
   TooltipContent,
@@ -71,7 +71,7 @@ export function SidebarActions({
           <TooltipContent>Delete chat</TooltipContent>
         </Tooltip>
       </div>
-      <ChatShareDialog
+      <QueryShareDialog
         query={query}
         shareQuery={shareQuery}
         open={shareDialogOpen}
@@ -83,7 +83,7 @@ export function SidebarActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your chat message and remove your
+              This will permanently delete your query and remove your
               data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>

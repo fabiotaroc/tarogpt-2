@@ -1,8 +1,9 @@
-export interface Query extends Record<string, any> {
-  id: string
-  userId: string
-  question: string
-  createdAt: Date
+export interface Query {
+  id: string;
+  userId: string;
+  question: string;
+  createdAt: Date;
+  sharePath?: string;
 }
 
 export type ServerActionResult<Result> = Promise<
@@ -17,7 +18,7 @@ export interface AuthResult {
   message: string
 }
 
-export interface User extends Record<string, any> {
+export interface User {
   id: string
   email: string
   password: string

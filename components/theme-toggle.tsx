@@ -8,7 +8,7 @@ import { IconMoon, IconSun } from "@/components/ui/icons";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
-  const [_, startTransition] = React.useTransition();
+  const [, startTransition] = React.useTransition();
 
   return (
     <Button

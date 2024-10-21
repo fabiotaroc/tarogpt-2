@@ -7,15 +7,15 @@ import { SidebarList } from "@/components/sidebar-list";
 import { buttonVariants } from "@/components/ui/button";
 import { IconPlus } from "@/components/ui/icons";
 
-interface ChatHistoryProps {
+interface QueryHistoryProps {
   userId?: string;
 }
 
-export async function ChatHistory({ userId }: ChatHistoryProps) {
+export async function QueryHistory({ userId }: QueryHistoryProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4">
-        <h4 className="text-sm font-medium">Chat History</h4>
+        <h4 className="text-sm font-medium">Query History</h4>
       </div>
       <div className="mb-2 px-2">
         <Link
@@ -26,7 +26,7 @@ export async function ChatHistory({ userId }: ChatHistoryProps) {
           )}
         >
           <IconPlus className="-translate-x-2 stroke-2" />
-          New Chat
+          New Query
         </Link>
       </div>
       <React.Suspense
@@ -41,7 +41,6 @@ export async function ChatHistory({ userId }: ChatHistoryProps) {
           </div>
         }
       >
-        {/* @ts-ignore */}
         <SidebarList userId={userId} />
       </React.Suspense>
     </div>

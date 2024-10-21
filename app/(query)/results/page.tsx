@@ -17,7 +17,7 @@ export default async function ResultsPage({
     : [];
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-8 flex flex-col w-full overflow-auto transition-all ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[350px]">
       <h2 className="text-2xl font-bold">SQL Query</h2>
       <CodeBlock value={sql} />
       <Separator />

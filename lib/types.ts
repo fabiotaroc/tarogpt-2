@@ -1,7 +1,8 @@
-export interface Query {
+export interface Query extends Record<string, unknown> {
   id: string;
   userId: string;
   question: string;
+  path: string;
   createdAt: Date;
   sharePath?: string;
 }

@@ -8,7 +8,7 @@ interface QueryLayoutProps {
 export default async function QueryLayout({ children }: QueryLayoutProps) {
   return (
     <div className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
-      <div className="absolute right-0 top-0 z-20">
+      <div className="absolute p-4">
         <SidebarToggle />
       </div>
       <SidebarDesktop />

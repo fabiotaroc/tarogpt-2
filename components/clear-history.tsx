@@ -42,7 +42,7 @@ export function ClearHistory({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete your chat history and remove your data
+            This will permanently delete your query history and remove your data
             from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>

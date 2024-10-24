@@ -20,7 +20,7 @@ export async function translateSQL(userQuestion: string) {
     `;
 
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4o-mini"),
     prompt: prompt,
     output: "array",
     schema: z.object({
@@ -48,18 +48,22 @@ export async function executeSQL(query: string) {
 }
 
 export async function getQueries(userId?: string | null) {
-  const pipeline = kv.pipeline();
-  const queries: string[] = await kv.zrange(`user:query:${userId}`, 0, -1, {
-    rev: true,
-  });
+  try {
+    const pipeline = kv.pipeline();
+    const queries: string[] = await kv.zrange(`user:query:${userId}`, 0, -1, {
+      rev: true,
+    });
 
-  for (const query of queries) {
-    pipeline.hgetall(query);
+    for (const query of queries) {
+      pipeline.hgetall(query);
+    }
+
+    const results = await pipeline.exec();
+
+    return results as Query[];
+  } catch {
+    return [];
   }
-
-  const results = await pipeline.exec();
-
-  return results as Query[];
 }
 
 export async function getQuery(id: string, userId: string) {

@@ -4,31 +4,43 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { translateSQL } from "@/app/actions";
+import { saveQuery } from "@/app/actions";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { type Query } from "@/lib/types";
+import { nanoid } from "nanoid";
+import { useAuth } from "@clerk/nextjs";
 
 export function QueryForm() {
+  const { userId } = useAuth(); // Move useAuth to the top level of the component
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsLoading(true);
-    translateSQL(query)
-      .then((translatedQuery) => {
-        router.push(
-          `/results?sql=${encodeURIComponent(translatedQuery)}&question=${encodeURIComponent(query)}`
-        );
-      })
-      .catch((error) => {
-        console.error("Error translating query:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const id = nanoid();
+
+      const queryData: Query = {
+        id,
+        userId: userId ?? "unknown", // Use userId from useAuth
+        question: query,
+        path: `/results/${id}`,
+        createdAt: new Date(),
+      };
+
+      await saveQuery(queryData);
+      console.log("Query saved with ID:", id);
+
+      router.push(`/results/${id}`);
+    } catch (error) {
+      console.error("Error saving query:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

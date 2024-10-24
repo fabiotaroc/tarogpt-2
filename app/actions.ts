@@ -48,22 +48,18 @@ export async function executeSQL(query: string) {
 }
 
 export async function getQueries(userId?: string | null) {
-  try {
-    const pipeline = kv.pipeline();
-    const queries: string[] = await kv.zrange(`user:query:${userId}`, 0, -1, {
-      rev: true,
-    });
+  const pipeline = kv.pipeline();
+  const queries: string[] = await kv.zrange(`user:query:${userId}`, 0, -1, {
+    rev: true,
+  });
 
-    for (const query of queries) {
-      pipeline.hgetall(query);
-    }
-
-    const results = await pipeline.exec();
-
-    return results as Query[];
-  } catch (error) {
-    return [];
+  for (const query of queries) {
+    pipeline.hgetall(query);
   }
+
+  const results = await pipeline.exec();
+
+  return results as Query[];
 }
 
 export async function getQuery(id: string, userId: string) {

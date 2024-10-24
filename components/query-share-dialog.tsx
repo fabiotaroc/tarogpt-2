@@ -67,11 +67,15 @@ export function QueryShareDialog({
                 const result = await shareQuery(query.id)
 
                 if (result && 'error' in result) {
-                  toast.error(result.error)
+                  toast.error(result.error as string)
                   return
                 }
 
-                copyShareLink(result)
+                if (result) {
+                  copyShareLink(result)
+                } else {
+                  toast.error('Failed to share query')
+                }
               })
             }}
           >

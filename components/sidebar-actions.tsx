@@ -1,0 +1,124 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import { toast } from 'sonner'
+
+import { ServerActionResult, type Query } from '@/lib/types'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
+import { QueryShareDialog } from '@/components/query-share-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+
+interface SidebarActionsProps {
+  query: Query
+  removeQuery: (args: { id: string; path: string }) => ServerActionResult<void>
+  shareQuery: (id: string) => ServerActionResult<Query>
+}
+
+export function SidebarActions({
+  query,
+  removeQuery,
+  shareQuery
+}: SidebarActionsProps) {
+  const router = useRouter()
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
+  const [isRemovePending, startRemoveTransition] = React.useTransition()
+
+  return (
+    <>
+      <div className="">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              className="size-7 p-0 hover:bg-background"
+              onClick={() => setShareDialogOpen(true)}
+            >
+              <IconShare />
+              <span className="sr-only">Share</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Share chat</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              className="size-7 p-0 hover:bg-background"
+              disabled={isRemovePending}
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <IconTrash />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Delete chat</TooltipContent>
+        </Tooltip>
+      </div>
+      <QueryShareDialog
+        query={query}
+        shareQuery={shareQuery}
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        onCopy={() => setShareDialogOpen(false)}
+      />
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete your query and remove your
+              data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRemovePending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isRemovePending}
+              onClick={event => {
+                event.preventDefault()
+                startRemoveTransition(async () => {
+                  const result = await removeQuery({
+                    id: query.id,
+                    path: query.path
+                  })
+
+                  if (result && 'error' in result) {
+                    toast.error(result.error)
+                    return
+                  }
+
+                  setDeleteDialogOpen(false)
+                  router.refresh()
+                  router.push('/')
+                  toast.success('Chat deleted')
+                })
+              }}
+            >
+              {isRemovePending && <IconSpinner className="mr-2 animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}

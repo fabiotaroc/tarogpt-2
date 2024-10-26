@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { convertBigIntToString, formatDate } from "@/lib/utils";
 import { executeSQL, getSharedQuery, translateSQL } from "@/app/actions";
-import { FooterText } from "@/components/footer";
+import { Footer } from "@/components/footer";
 
 interface SharePageProps {
   params: {
@@ -59,7 +59,7 @@ export default async function SharePage({ params }: SharePageProps) {
           <QueryResultTable data={queryResult} />
         </div>
       </div>
-      <FooterText className="py-8" />
+      <Footer />
     </>
   );
 }

@@ -6,15 +6,15 @@ export const tableSchema = `\
 order_code: unique order code
 order_date: order date
 order_time: order time
-order_status: status of the order
+order_status: status of the order (only use it to query if explicitly asked for). options: [complete, fulfilled, in_transit, shipped, accepted_by_logistic, sent_to_logistic, exception, out_for_delivery, partial, pending, processing, not_be_delivered]
 transaction_website: ecommerce website location. can be either us (american), en (european), or is (icelandic)
 product_sku: sku of the item. unique identifier
 item_name: name of the specific item with size
 product_name: the generic item name without the size
-product_category: category of product
+product_category: category of product. options: [body & hand, masks, gifts & sets, moisturizers, hair, eye & lip, other, spa at home, cleansers, serums]
 product_line: either spa, derma, bl+, or spa&bl+
 product_quantity: quantity of that item bought
-product_revenue_euro_notax: relevant revenue information. always use this column for revenue
+product_revenue_euro_notax: relevant revenue information. always use this column when asked for revenue
 order_currency: currency of the order
 order_taxrate:tax rate percentage
 gift: whether the item is a gift or not_gift
@@ -35,7 +35,7 @@ payment_method: specific payment provider (adyen, paypal, channable)
 order_coupon_magentorule: coupon name. used for campaigns and promotions
 order_coupon_code: alphanumeric code for each to coupon name
 source_medium: traffic source and traffic medium
-first_level_source: generic source category, and commonly referred to as just 'source'
+first_level_source: generic source category, and commonly referred to as just 'source'. Options: [Email, Marketing, Direct, Organic, Referral, SMS, Other, [NULL]]
 campaign: name of the campaign the customer comes from
 landing_page_path: landing page the customer lands on
 

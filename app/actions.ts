@@ -146,3 +146,13 @@ export async function shareQuery(id: string) {
 
   return payload;
 }
+
+export async function getSharedQuery(id: string) {
+  const query = await kv.hgetall<Query>(`query:${id}`);
+
+  if (!query || !query.sharePath) {
+    return null;
+  }
+
+  return query;
+}

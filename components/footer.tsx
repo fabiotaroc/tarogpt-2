@@ -15,3 +15,11 @@ export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {
     </p>
   )
 }
+
+export function Footer() {
+  return (
+    <footer className="mt-auto border-t bg-background py-3 px-2 text-center text-xs leading-normal text-secondary-foreground">
+      <p>TaroGPT can make mistakes. Check important info.</p>
+    </footer>
+  );
+}

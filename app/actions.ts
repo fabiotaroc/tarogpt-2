@@ -20,7 +20,7 @@ export async function translateSQL(userQuestion: string) {
     `;
 
   const { object } = await generateObject({
-    model: openai("gpt-4o-mini"),
+    model: openai("gpt-4o"),
     prompt: prompt,
     output: "array",
     schema: z.object({

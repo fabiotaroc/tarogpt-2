@@ -11,6 +11,10 @@ export const nanoid = customAlphabet(
   7
 ); // 7-character random string
 
+export function maskSensitiveData(sql: string): string {
+  return sql.replace(/bluelagoon_skincare_consulting_prod.moe_new/g, "schema.table");
+}
+
 export function convertBigIntToString(value: unknown): unknown {
   // Handle null and undefined
   if (value === null || value === undefined) {

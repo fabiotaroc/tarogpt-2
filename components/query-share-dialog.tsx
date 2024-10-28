@@ -53,11 +53,11 @@ export function QueryShareDialog({
         <DialogHeader>
           <DialogTitle>Share link to query</DialogTitle>
           <DialogDescription>
-            Anyone with the URL will be able to view the shared query.
+            User must be registered to view the shared query.
           </DialogDescription>
         </DialogHeader>
         <div className="p-4 space-y-1 text-sm border rounded-md">
-          <div className="font-medium">{query.question}</div>
+          <div className="font-medium text-primary">{query.question}</div>
         </div>
         <DialogFooter className="items-center">
           <Button

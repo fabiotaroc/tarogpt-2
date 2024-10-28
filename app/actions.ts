@@ -20,7 +20,7 @@ export async function translateSQL(userQuestion: string) {
     `;
 
   const { object } = await generateObject({
-    model: openai("gpt-4o-mini"),
+    model: openai("gpt-4o"),
     prompt: prompt,
     output: "array",
     schema: z.object({
@@ -145,4 +145,14 @@ export async function shareQuery(id: string) {
   await kv.hmset(`query:${query.id}`, payload);
 
   return payload;
+}
+
+export async function getSharedQuery(id: string) {
+  const query = await kv.hgetall<Query>(`query:${id}`);
+
+  if (!query || !query.sharePath) {
+    return null;
+  }
+
+  return query;
 }

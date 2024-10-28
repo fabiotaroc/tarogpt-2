@@ -1,6 +1,8 @@
 import Link from 'next/link'
-import { LinkedInLogoIcon, GitHubLogoIcon } from '@radix-ui/react-icons'
+import { LinkedInLogoIcon, GitHubLogoIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { SignedIn, UserButton } from "@clerk/nextjs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { InfoBox } from '@/components/info-box'
 
 export function Header() {
   return (
@@ -10,6 +12,14 @@ export function Header() {
           <Link href="/" className="flex items-center">
             <span className="text-2xl font-bold text-foreground">TaroGPT</span>
           </Link>
+          <Popover>
+            <PopoverTrigger>
+              <InfoCircledIcon className="w-6 h-6 text-muted-foreground hover:text-foreground transition-colors" />
+            </PopoverTrigger>
+            <PopoverContent side="bottom" align="start" className="w-full p-0">
+              <InfoBox />
+            </PopoverContent>
+          </Popover>
           <Link
             href="https://github.com/fabiotaroc"
             className="text-muted-foreground hover:text-foreground transition-colors"

@@ -4,6 +4,7 @@ import { QueryResultTable, RowData } from "@/components/ui/query-result-table";
 import { convertBigIntToString, formatDate, maskSensitiveData } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@clerk/nextjs/server";
+import { BarChartComponent } from "@/components/ui/charts/bar-chart";
 
 export default async function ResultsPage({
   params,
@@ -26,6 +27,11 @@ export default async function ResultsPage({
     ? (convertBigIntToString(result.data) as RowData[])
     : [];
 
+  // Get the first two columns for the chart
+  const firstTwoColumns = queryResult.length > 0 
+    ? Object.keys(queryResult[0]).slice(0, 2) 
+    : [];
+
   return (
     <div className="space-y-4 p-8 flex flex-col w-full min-h-screen overflow-auto transition-all ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[350px]">
       <div className="flex flex-col items-center justify-between">
@@ -39,6 +45,17 @@ export default async function ResultsPage({
       <Separator />
       <h2 className="text-xl font-medium text-muted-foreground">Table</h2>
       <QueryResultTable data={queryResult} />
+      <Separator />
+      <h2 className="text-xl font-medium text-muted-foreground">Chart</h2>
+      {queryResult.length > 0 && firstTwoColumns.length >= 2 && (
+        <div className="w-full max-w-6xl mx-auto">
+          <BarChartComponent 
+            data={queryResult}
+            xAxisKey={firstTwoColumns[0]}
+            dataKey={firstTwoColumns[1]}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { type Query } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { ChartRecommendation, CHART_TYPES } from '@/lib/chart-types';
 
 export async function translateSQL(userQuestion: string) {
   const prompt = `
@@ -28,6 +29,44 @@ export async function translateSQL(userQuestion: string) {
     }),
   });
   return object[0].query;
+}
+
+export async function getRecommendedChartType(
+  userQuestion: string,
+  sqlQuery: string
+): Promise<ChartRecommendation> {
+  const prompt = `
+    As a data visualization expert, analyze this user question and its corresponding SQL query to recommend the most appropriate chart type.
+    
+    User Question: ${userQuestion}
+    SQL Query: ${sqlQuery}
+
+    Available chart types are: ${Object.values(CHART_TYPES).join(', ')}
+
+    Consider these factors:
+    1. Data comparison needs (e.g., comparing categories, showing trends over time)
+    2. Number of variables being analyzed
+    3. Data distribution and relationships
+    4. Time-series vs categorical data
+    5. Part-to-whole relationships
+
+    Output a recommendation.
+  `;
+
+  const { object } = await generateObject({
+    model: openai("gpt-4"),
+    prompt: prompt,
+    schema: z.object({
+      chartType: z.enum([
+        CHART_TYPES.BAR,
+        CHART_TYPES.LINE,
+        CHART_TYPES.PIE,
+        CHART_TYPES.AREA
+      ]).describe("The recommended chart type"),
+    })
+  });
+
+  return object;
 }
 
 export async function executeSQL(query: string) {
@@ -156,3 +195,4 @@ export async function getSharedQuery(id: string) {
 
   return query;
 }
+

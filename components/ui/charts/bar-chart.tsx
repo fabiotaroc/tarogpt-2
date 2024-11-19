@@ -1,6 +1,8 @@
 "use client";
 
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import { nanoid } from "nanoid";
+import React from "react";
 
 import {
   Card,
@@ -18,6 +20,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+import { ChartCopyButton } from "../chart-copy-button";
+
 interface BarChartProps {
   data: Array<Record<string, any>>;
   xAxisKey: string;
@@ -32,6 +36,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function BarChart({ data, xAxisKey, dataKey }: BarChartProps) {
+  const chartId = React.useMemo(() => `chart-${nanoid()}`, []);
+
   const formattedData = data.map(item => ({
     ...item,
     [dataKey]: typeof item[dataKey] === 'number' 
@@ -45,59 +51,66 @@ export default function BarChart({ data, xAxisKey, dataKey }: BarChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Query Results Visualization</CardTitle>
-        <CardDescription>Data Analysis</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Query Results Visualization</CardTitle>
+            <CardDescription>Data Analysis</CardDescription>
+          </div>
+          <ChartCopyButton chartId={chartId} />
+        </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <RechartsBarChart
-            accessibilityLayer
-            data={formattedData}
-            margin={{
-              top: 30,
-              right: 50,
-              left: 50,
-              bottom: 150,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey={xAxisKey}
-              tickLine={false}
-              tickMargin={30}
-              axisLine={false}
-              interval={0}
-              tick={(props) => {
-                const { x, y, payload } = props;
-                return (
-                  <text
-                    x={x}
-                    y={y}
-                    dy={16}
-                    textAnchor="end"
-                    transform={`rotate(-45 ${x} ${y})`}
-                    fontSize={10}
-                  >
-                    {payload.value}
-                  </text>
-                );
+        <div id={chartId} className="relative bg-background">
+          <ChartContainer config={chartConfig}>
+            <RechartsBarChart
+              accessibilityLayer
+              data={formattedData}
+              margin={{
+                top: 30,
+                right: 50,
+                left: 50,
+                bottom: 150,
               }}
-            />
-            <ChartTooltip
-              cursor={true}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey={dataKey} fill="var(--color-desktop)" radius={8}>
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-                formatter={(value: number) => value.toFixed(2)}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey={xAxisKey}
+                tickLine={false}
+                tickMargin={30}
+                axisLine={false}
+                interval={0}
+                tick={(props) => {
+                  const { x, y, payload } = props;
+                  return (
+                    <text
+                      x={x}
+                      y={y}
+                      dy={16}
+                      textAnchor="end"
+                      transform={`rotate(-45 ${x} ${y})`}
+                      fontSize={10}
+                    >
+                      {payload.value}
+                    </text>
+                  );
+                }}
               />
-            </Bar>
-          </RechartsBarChart>
-        </ChartContainer>
+              <ChartTooltip
+                cursor={true}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Bar dataKey={dataKey} fill="var(--color-desktop)" radius={8}>
+                <LabelList
+                  position="top"
+                  offset={12}
+                  className="fill-foreground"
+                  fontSize={12}
+                  formatter={(value: number) => value.toFixed(2)}
+                />
+              </Bar>
+            </RechartsBarChart>
+          </ChartContainer>
+        </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="leading-none text-muted-foreground">

@@ -2,21 +2,33 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartConfig, ChartTooltip } from "@/components/ui/chart";
+import { nanoid } from "nanoid";
+import React from "react";
+import { ChartCopyButton } from "../chart-copy-button";
 
 interface PieChartProps {
   data: Array<Record<string, any>>;
 }
 
 const COLORS = [
-  'var(--chart-1)',
-  'var(--chart-2)', 
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)'
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))'
 ];
 
+const chartConfig = {
+  desktop: {
+    label: "Value",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
+
 export default function PieChartComponent({ data }: PieChartProps) {
+  const chartId = React.useMemo(() => `chart-${nanoid()}`, []);
+  
   const firstTwoColumns = Object.keys(data[0]).slice(0, 2);
   const [labelKey, valueKey] = firstTwoColumns;
 
@@ -24,60 +36,117 @@ export default function PieChartComponent({ data }: PieChartProps) {
     ...item,
     [valueKey]: typeof item[valueKey] === 'number'
       ? Number(item[valueKey].toFixed(2))
-      : item[valueKey]
+      : typeof item[valueKey] === 'string'
+        ? parseFloat(item[valueKey]) || 0
+        : 0
   }));
 
+  const total = formattedData.reduce((sum, item) => sum + Number(item[valueKey]), 0);
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Query Results Visualization</CardTitle>
-        <CardDescription>Data Analysis</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Query Results Visualization</CardTitle>
+            <CardDescription>Data Analysis</CardDescription>
+          </div>
+          <ChartCopyButton chartId={chartId} />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={formattedData}
-                dataKey={valueKey}
-                nameKey={labelKey}
-                cx="50%"
-                cy="50%"
-                label={({
-                  cx,
-                  cy,
-                  midAngle,
-                  outerRadius,
-                  value,
-                  name
-                }) => {
-                  const RADIAN = Math.PI / 180;
-                  const radius = outerRadius * 1.25;
-                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                  return (
-                    <text
-                      x={x}
-                      y={y}
-                      className="fill-foreground"
-                      fontSize={12}
-                      textAnchor={x > cx ? 'start' : 'end'}
-                      dominantBaseline="central"
-                    >
-                      {`${name}: ${Number(value).toFixed(2)}`}
-                    </text>
-                  );
-                }}
-              >
-                {formattedData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        <div id={chartId} className="relative bg-background">
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={formattedData}
+                  dataKey={valueKey}
+                  nameKey={labelKey}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={150}
+                  innerRadius={75} // Added innerRadius for donut style
+                  paddingAngle={2} // Added padding between segments
+                  label={({
+                    cx,
+                    cy,
+                    midAngle,
+                    outerRadius,
+                    value,
+                    name
+                  }) => {
+                    const RADIAN = Math.PI / 180;
+                    const radius = outerRadius * 1.25;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        className="fill-foreground"
+                        fontSize={12}
+                        textAnchor={x > cx ? 'start' : 'end'}
+                        dominantBaseline="central"
+                      >
+                        {`${name} (${percentage}%)`}
+                      </text>
+                    );
+                  }}
+                >
+                  {formattedData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]}
+                      className="stroke-background hover:opacity-80 transition-opacity"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <ChartTooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    
+                    const data = payload[0].payload;
+                    const value = Number(data[valueKey]);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex flex-col">
+                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                              {labelKey}
+                            </span>
+                            <span className="font-bold text-muted-foreground">
+                              {data[labelKey]}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                              Value
+                            </span>
+                            <span className="font-bold">
+                              {value.toFixed(2)} ({percentage}%)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="leading-none text-muted-foreground">
+          Visualization of query results
+        </div>
+      </CardFooter>
     </Card>
   );
 } 

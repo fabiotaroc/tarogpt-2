@@ -9,19 +9,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 const BarChart = lazy(() => import("@/components/ui/charts/bar-chart"));
 const LineChart = lazy(() => import("@/components/ui/charts/line-chart"));
 const PieChart = lazy(() => import("@/components/ui/charts/pie-chart"));
-const AreaChart = lazy(() => import("@/components/ui/charts/area-chart"));
 
 interface QueryChartProps {
   data: any[];
   chartType: ChartType;
-  reasoning: string;
 }
 
 const ChartComponents = {
   [CHART_TYPES.BAR]: BarChart,
   [CHART_TYPES.LINE]: LineChart,
   [CHART_TYPES.PIE]: PieChart,
-  [CHART_TYPES.AREA]: AreaChart,
 } as const;
 
 function ChartSkeleton() {
@@ -31,28 +28,30 @@ function ChartSkeleton() {
     </div>
   );
 }
-
-export function QueryChart({ data, chartType, reasoning }: QueryChartProps) {
-  const ChartComponent = ChartComponents[chartType];
-
-  if (!ChartComponent) {
-    return <div>Unsupported chart type: {chartType}</div>;
-  }
+export function QueryChart({ data, chartType }: QueryChartProps) {
+  const ChartComponent = ChartComponents[chartType as keyof typeof ChartComponents];
+  const firstTwoColumns = data.length > 0 ? Object.keys(data[0]).slice(0, 2) : [];
+  const [xAxisKey, dataKey] = firstTwoColumns;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Visualization</span>
+          <span>Visualisation</span>
           <span className="text-sm font-normal text-muted-foreground">
             {chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart
           </span>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">{reasoning}</p>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<ChartSkeleton />}>
-          <ChartComponent data={data} />
+          {firstTwoColumns.length >= 2 && (
+            <ChartComponent 
+              data={data} 
+              xAxisKey={xAxisKey} 
+              dataKey={dataKey} 
+            />
+          )}
         </Suspense>
       </CardContent>
     </Card>

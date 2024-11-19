@@ -1,7 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import { Bar, BarChart as RechartsBarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
 import {
   Card,
@@ -11,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   ChartConfig,
   ChartContainer,
@@ -31,12 +31,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BarChartComponent({ data, xAxisKey, dataKey }: BarChartProps) {
+export default function BarChart({ data, xAxisKey, dataKey }: BarChartProps) {
   const formattedData = data.map(item => ({
     ...item,
     [dataKey]: typeof item[dataKey] === 'number' 
       ? Number(item[dataKey].toFixed(2))
-      : item[dataKey]
+      : typeof item[dataKey] === 'string'
+        ? parseFloat(item[dataKey]) || 0
+        : 0,
+    [xAxisKey]: String(item[xAxisKey])
   }));
 
   return (
@@ -47,7 +50,7 @@ export function BarChartComponent({ data, xAxisKey, dataKey }: BarChartProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+          <RechartsBarChart
             accessibilityLayer
             data={formattedData}
             margin={{
@@ -64,10 +67,20 @@ export function BarChartComponent({ data, xAxisKey, dataKey }: BarChartProps) {
               tickMargin={30}
               axisLine={false}
               interval={0}
-              tick={{ 
-                angle: -45,
-                textAnchor: 'end',
-                fontSize: 10,
+              tick={(props) => {
+                const { x, y, payload } = props;
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    dy={16}
+                    textAnchor="end"
+                    transform={`rotate(-45 ${x} ${y})`}
+                    fontSize={10}
+                  >
+                    {payload.value}
+                  </text>
+                );
               }}
             />
             <ChartTooltip
@@ -83,7 +96,7 @@ export function BarChartComponent({ data, xAxisKey, dataKey }: BarChartProps) {
                 formatter={(value: number) => value.toFixed(2)}
               />
             </Bar>
-          </BarChart>
+          </RechartsBarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

@@ -6,7 +6,7 @@ import { InfoBox } from '@/components/info-box'
 
 export function Header() {
   return (
-    <header className="sticky top-0 bg-background border-b py-4 px-6 shrink-0 bg-gradient-to-b backdrop-blur-xl">
+    <header className="sticky top-0 bg-background/95 border-b py-4 px-6 shrink-0 backdrop-blur-xl z-50">
       <div className="container max-w-screen-xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center">

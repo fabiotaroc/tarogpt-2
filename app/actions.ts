@@ -33,35 +33,35 @@ export async function translateSQL(userQuestion: string) {
 
 export async function getRecommendedChartType(
   userQuestion: string,
-  sqlQuery: string
+  sqlQuery: string,
+  rowCount: number
 ): Promise<ChartRecommendation> {
   const prompt = `
     As a data visualization expert, analyze this user question and its corresponding SQL query to recommend the most appropriate chart type.
     
     User Question: ${userQuestion}
     SQL Query: ${sqlQuery}
+    Number of Rows: ${rowCount}
 
     Available chart types are: ${Object.values(CHART_TYPES).join(', ')}
 
-    Consider these factors:
-    1. Data comparison needs (e.g., comparing categories, showing trends over time)
-    2. Number of variables being analyzed
-    3. Data distribution and relationships
-    4. Time-series vs categorical data
-    5. Part-to-whole relationships
+    Follow these rules strictly:
+    1. If the number of rows is 10 or less, use a pie chart
+    2. If the data contains dates or timestamps, use a line chart
+    3. Otherwise, use a bar chart
 
+    The data has ${rowCount} rows.
     Output a recommendation.
   `;
 
   const { object } = await generateObject({
-    model: openai("gpt-4"),
+    model: openai("gpt-4o-mini"),
     prompt: prompt,
     schema: z.object({
       chartType: z.enum([
         CHART_TYPES.BAR,
         CHART_TYPES.LINE,
         CHART_TYPES.PIE,
-        CHART_TYPES.AREA
       ]).describe("The recommended chart type"),
     })
   });

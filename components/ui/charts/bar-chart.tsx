@@ -21,9 +21,10 @@ import {
 } from "@/components/ui/chart";
 
 import { ChartCopyButton } from "../chart-copy-button";
+import { RowData } from "@/lib/types";
 
 interface BarChartProps {
-  data: Array<Record<string, any>>;
+  data: RowData[];
   xAxisKey: string;
   dataKey: string;
 }

@@ -11,12 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { IconDownload } from "@/components/ui/icons";
 import { format } from "date-fns";
-
-// Define a type for possible cell values
-export type CellValue = string | number | Date | bigint | boolean | null | undefined;
-
-// Define a type for the row data
-export type RowData = Record<string, CellValue>;
+import { CellValue, RowData } from "@/lib/types";
 
 export interface QueryResultTableProps {
   data: RowData[];

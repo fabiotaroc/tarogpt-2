@@ -10,18 +10,22 @@ export interface Query extends Record<string, unknown> {
 export type ServerActionResult<Result> = Promise<
   | Result
   | {
-      error: string
+      error: string;
     }
->
+>;
 
 export interface AuthResult {
-  type: string
-  message: string
+  type: string;
+  message: string;
 }
 
 export interface User {
-  id: string
-  email: string
-  password: string
-  salt: string
+  id: string;
+  email: string;
+  password: string;
+  salt: string;
 }
+
+export type CellValue = string | number | Date | bigint | boolean | null | undefined;
+
+export type RowData = Record<string, CellValue>;

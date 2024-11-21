@@ -1,14 +1,15 @@
 "use client";
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartTooltip } from "@/components/ui/chart";
+import { ChartTooltip } from "@/components/ui/chart";
 import { nanoid } from "nanoid";
 import React from "react";
 import { ChartCopyButton } from "../chart-copy-button";
+import { RowData } from "@/lib/types";
 
 interface PieChartProps {
-  data: Array<Record<string, any>>;
+  data: RowData[];
 }
 
 const COLORS = [
@@ -18,13 +19,6 @@ const COLORS = [
   'hsl(var(--chart-4))',
   'hsl(var(--chart-5))'
 ];
-
-const chartConfig = {
-  desktop: {
-    label: "Value",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
 
 export default function PieChartComponent({ data }: PieChartProps) {
   const chartId = React.useMemo(() => `chart-${nanoid()}`, []);

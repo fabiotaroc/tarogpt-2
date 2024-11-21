@@ -23,7 +23,7 @@ export function CodeBlock({ value }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative w-full font-sans codeblock bg-zinc-950 rounded-xl overflow-hidden">
+    <div className="relative w-full font-sans codeblock bg-zinc-950 rounded-xl">
       <div className="flex items-center justify-between w-full px-6 py-0.5 pr-4 bg-zinc-800 text-zinc-100 rounded-t-xl">
         <span className="text-xs uppercase">SQL</span>
         <div className="flex items-center space-x-1">
@@ -38,29 +38,34 @@ export function CodeBlock({ value }: CodeBlockProps) {
           </Button>
         </div>
       </div>
-      <SyntaxHighlighter
-        language="sql"
-        style={coldarkDark}
-        PreTag="div"
-        showLineNumbers
-        customStyle={{
-          margin: 0,
-          width: "100%",
-          background: "transparent",
-          padding: "1.5rem 1rem",
-        }}
-        lineNumberStyle={{
-          userSelect: "none",
-        }}
-        codeTagProps={{
-          style: {
-            fontSize: "0.9rem",
-            fontFamily: "var(--font-mono)",
-          },
-        }}
-      >
-        {value}
-      </SyntaxHighlighter>
+      <div className="max-w-full overflow-x-auto">
+        <SyntaxHighlighter
+          language="sql"
+          style={coldarkDark}
+          PreTag="div"
+          showLineNumbers
+          customStyle={{
+            margin: 0,
+            background: "transparent",
+            padding: "1.5rem 1rem",
+            minWidth: "100%",
+            width: "max-content",
+          }}
+          lineNumberStyle={{
+            userSelect: "none",
+            minWidth: "2.5em",
+          }}
+          codeTagProps={{
+            style: {
+              fontSize: "0.9rem",
+              fontFamily: "var(--font-mono)",
+              whiteSpace: "pre",
+            },
+          }}
+        >
+          {value}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 }

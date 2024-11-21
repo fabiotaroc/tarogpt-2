@@ -9,4 +9,5 @@ export type ChartType = typeof CHART_TYPES[keyof typeof CHART_TYPES];
 
 export interface ChartRecommendation {
   chartType: ChartType;
+  title: string;
 } 

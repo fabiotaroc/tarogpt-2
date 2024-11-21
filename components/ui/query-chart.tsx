@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react";
 import { ChartType, CHART_TYPES } from "@/lib/chart-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RowData } from "@/lib/types";
 
 // Lazy load chart components
 const BarChart = lazy(() => import("@/components/ui/charts/bar-chart"));
@@ -11,7 +12,7 @@ const LineChart = lazy(() => import("@/components/ui/charts/line-chart"));
 const PieChart = lazy(() => import("@/components/ui/charts/pie-chart"));
 
 interface QueryChartProps {
-  data: any[];
+  data: RowData[];
   chartType: ChartType;
 }
 

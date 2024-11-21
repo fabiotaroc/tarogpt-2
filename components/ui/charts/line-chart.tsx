@@ -13,17 +13,17 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
+  ChartTooltip
 } from "@/components/ui/chart";
 
 import { formatDate } from "@/lib/utils";
 import { ChartCopyButton } from "../chart-copy-button";
 import { nanoid } from "nanoid";
 import React from "react";
+import { RowData } from "@/lib/types";
 
 interface LineChartProps {
-  data: Array<Record<string, any>>;
+  data: RowData[];
   xAxisKey: string;
   dataKey: string;
 }
@@ -40,8 +40,9 @@ export default function LineChart({ data, xAxisKey, dataKey }: LineChartProps) {
 
   const formattedData = data.map(item => ({
     ...item,
-    [xAxisKey]: item[xAxisKey] instanceof Date || !isNaN(new Date(item[xAxisKey]).getTime())
-      ? new Date(item[xAxisKey])
+    [xAxisKey]: (item[xAxisKey] instanceof Date || 
+      (item[xAxisKey] != null && !isNaN(new Date(item[xAxisKey] as string | number | Date).getTime())))
+      ? new Date(item[xAxisKey] as string | number | Date)
       : item[xAxisKey],
     [dataKey]: typeof item[dataKey] === 'number' 
       ? Number(item[dataKey].toFixed(2))

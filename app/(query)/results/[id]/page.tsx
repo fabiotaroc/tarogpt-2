@@ -1,6 +1,7 @@
 import { getQuery, executeSQL, translateSQL, getRecommendedChartType } from "@/app/actions";
 import { CodeBlock } from "@/components/ui/codeblock";
-import { QueryResultTable, RowData } from "@/components/ui/query-result-table";
+import { QueryResultTable } from "@/components/ui/query-result-table";
+import { RowData } from "@/lib/types";
 import { convertBigIntToString, formatDate, maskSensitiveData } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@clerk/nextjs/server";

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/chart";
 
 import { formatDate } from "@/lib/utils";
-import { ChartCopyButton } from "../chart-copy-button";
+import { ChartDownloadButton } from "../chart-download-button";
 import { nanoid } from "nanoid";
 import React from "react";
 import { RowData } from "@/lib/types";
@@ -59,7 +59,7 @@ export default function LineChart({ data, xAxisKey, dataKey, title }: LineChartP
             <CardTitle>{title}</CardTitle>
             <CardDescription>Line chart</CardDescription>
           </div>
-          <ChartCopyButton chartId={chartId} />
+          <ChartDownloadButton chartId={chartId} />
         </div>
       </CardHeader>
       <CardContent>

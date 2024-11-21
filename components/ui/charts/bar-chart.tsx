@@ -20,7 +20,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { ChartCopyButton } from "../chart-copy-button";
+import { ChartDownloadButton } from "../chart-download-button";
 import { RowData } from "@/lib/types";
 
 interface BarChartProps {
@@ -58,7 +58,7 @@ export default function BarChart({ data, xAxisKey, dataKey, title }: BarChartPro
             <CardTitle>{title}</CardTitle>
             <CardDescription>Bar chart</CardDescription>
           </div>
-          <ChartCopyButton chartId={chartId} />
+          <ChartDownloadButton chartId={chartId} />
         </div>
       </CardHeader>
       <CardContent>

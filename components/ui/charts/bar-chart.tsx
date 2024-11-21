@@ -27,6 +27,7 @@ interface BarChartProps {
   data: RowData[];
   xAxisKey: string;
   dataKey: string;
+  title: string;
 }
 
 const chartConfig = {
@@ -36,8 +37,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function BarChart({ data, xAxisKey, dataKey }: BarChartProps) {
-  const chartId = React.useMemo(() => `chart-${nanoid()}`, []);
+export default function BarChart({ data, xAxisKey, dataKey, title }: BarChartProps) {
+  const chartId = `bar-chart-${nanoid()}`;
 
   const formattedData = data.map(item => ({
     ...item,
@@ -54,8 +55,8 @@ export default function BarChart({ data, xAxisKey, dataKey }: BarChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Query Results Visualization</CardTitle>
-            <CardDescription>Data Analysis</CardDescription>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>Bar chart</CardDescription>
           </div>
           <ChartCopyButton chartId={chartId} />
         </div>

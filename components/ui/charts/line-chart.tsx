@@ -26,6 +26,7 @@ interface LineChartProps {
   data: RowData[];
   xAxisKey: string;
   dataKey: string;
+  title: string;
 }
 
 const chartConfig = {
@@ -35,8 +36,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function LineChart({ data, xAxisKey, dataKey }: LineChartProps) {
-  const chartId = React.useMemo(() => `chart-${nanoid()}`, []);
+export default function LineChart({ data, xAxisKey, dataKey, title }: LineChartProps) {
+  const chartId = `line-chart-${nanoid()}`;
 
   const formattedData = data.map(item => ({
     ...item,
@@ -56,8 +57,8 @@ export default function LineChart({ data, xAxisKey, dataKey }: LineChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Query Results Visualization</CardTitle>
-            <CardDescription>Data Analysis</CardDescription>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>Line chart</CardDescription>
           </div>
           <ChartCopyButton chartId={chartId} />
         </div>
@@ -143,11 +144,6 @@ export default function LineChart({ data, xAxisKey, dataKey }: LineChartProps) {
           </ChartContainer>
         </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="leading-none text-muted-foreground">
-          Visualisation of query results
-        </div>
-      </CardFooter>
     </Card>
   );
 } 

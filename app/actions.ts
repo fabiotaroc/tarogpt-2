@@ -37,7 +37,7 @@ export async function getRecommendedChartType(
   rowCount: number
 ): Promise<ChartRecommendation> {
   const prompt = `
-    As a data visualization expert, analyze this user question and its corresponding SQL query to recommend the most appropriate chart type.
+    As a data visualization expert, analyze this user question and its corresponding SQL query to recommend the most appropriate chart type and title.
     
     User Question: ${userQuestion}
     SQL Query: ${sqlQuery}
@@ -50,9 +50,10 @@ export async function getRecommendedChartType(
     2. If the data contains dates or timestamps, use a line chart
     3. Otherwise, use a bar chart
 
-    The data has ${rowCount} rows.
-    Output a recommendation.
-  `;
+    Generate:
+    1. A chart type following the rules above
+    2. A clear, concise title that describes what the chart is showing (max 70 characters)
+    `;
 
   const { object } = await generateObject({
     model: openai("gpt-4o-mini"),
@@ -63,6 +64,9 @@ export async function getRecommendedChartType(
         CHART_TYPES.LINE,
         CHART_TYPES.PIE,
       ]).describe("The recommended chart type"),
+      title: z.string()
+        .max(70)
+        .describe("A clear, concise title describing what the chart shows in less than 70 characters")
     })
   });
 

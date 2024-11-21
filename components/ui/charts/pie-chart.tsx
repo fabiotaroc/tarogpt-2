@@ -10,6 +10,7 @@ import { RowData } from "@/lib/types";
 
 interface PieChartProps {
   data: RowData[];
+  title: string;
 }
 
 const COLORS = [
@@ -20,7 +21,7 @@ const COLORS = [
   'hsl(var(--chart-5))'
 ];
 
-export default function PieChartComponent({ data }: PieChartProps) {
+export default function PieChartComponent({ data, title }: PieChartProps) {
   const chartId = React.useMemo(() => `chart-${nanoid()}`, []);
   
   const firstTwoColumns = Object.keys(data[0]).slice(0, 2);
@@ -42,8 +43,8 @@ export default function PieChartComponent({ data }: PieChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Query Results Visualization</CardTitle>
-            <CardDescription>Data Analysis</CardDescription>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>Pie chart</CardDescription>
           </div>
           <ChartCopyButton chartId={chartId} />
         </div>
@@ -60,8 +61,8 @@ export default function PieChartComponent({ data }: PieChartProps) {
                   cx="50%"
                   cy="50%"
                   outerRadius={150}
-                  innerRadius={75} // Added innerRadius for donut style
-                  paddingAngle={2} // Added padding between segments
+                  innerRadius={75}
+                  paddingAngle={2}
                   label={({
                     cx,
                     cy,
@@ -136,11 +137,6 @@ export default function PieChartComponent({ data }: PieChartProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="leading-none text-muted-foreground">
-          Visualization of query results
-        </div>
-      </CardFooter>
     </Card>
   );
 } 

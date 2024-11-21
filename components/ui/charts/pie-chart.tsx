@@ -11,7 +11,7 @@ import {
 import { ChartTooltip } from "@/components/ui/chart";
 import { nanoid } from "nanoid";
 import React from "react";
-import { ChartCopyButton } from "../chart-copy-button";
+import { ChartDownloadButton } from "../chart-download-button";
 import { RowData } from "@/lib/types";
 
 interface PieChartProps {
@@ -56,7 +56,7 @@ export default function PieChartComponent({ data, title }: PieChartProps) {
             <CardTitle>{title}</CardTitle>
             <CardDescription>Pie chart</CardDescription>
           </div>
-          <ChartCopyButton chartId={chartId} />
+          <ChartDownloadButton chartId={chartId} />
         </div>
       </CardHeader>
       <CardContent>

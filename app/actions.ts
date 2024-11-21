@@ -6,7 +6,7 @@ import { generateObject } from "ai";
 import { tableSchema } from "@/lib/ai-config";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
-import { type Query } from "@/lib/types";
+import { RowData, type Query } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
@@ -71,6 +71,38 @@ export async function getRecommendedChartType(
   });
 
   return object;
+}
+
+export async function generateInsight(
+  userQuestion: string,
+  queryResult: RowData[]
+) {
+  const prompt = `
+    As a seasoned data analyst, answer the user's question based on the query results, adding intelligent insights where appropriate.
+    
+    User Question: ${userQuestion}
+    Query Results: ${JSON.stringify(queryResult)}
+
+    Rules for insights:
+    1. Be specific and quantitative when possible
+    2. Focus on notable patterns, trends, or anomalies
+    3. Keep each insight concise (max 100 words)
+    4. Ensure insights are directly relevant to the user's question
+    5. Use proper business terminology
+    6. Revenue is always given in EURO
+    `;
+
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    prompt: prompt,
+    schema: z.object({
+      insight: z
+        .string()
+        .describe("A concise, data-driven insight"),
+    }),
+  });
+
+  return object.insight;
 }
 
 export async function executeSQL(query: string) {
@@ -199,4 +231,5 @@ export async function getSharedQuery(id: string) {
 
   return query;
 }
+
 

@@ -3,6 +3,7 @@ import {
   executeSQL,
   translateSQL,
   getRecommendedChartType,
+  generateInsight,
 } from "@/app/actions";
 import { CodeBlock } from "@/components/ui/codeblock";
 import { QueryResultTable } from "@/components/ui/query-result-table";
@@ -63,6 +64,10 @@ export default async function ResultsPage({
       )
     : null;
 
+  const insight = queryResult.length > 0 
+    ? await generateInsight(queryData.question, queryResult)
+    : null;
+
   return (
     <div className="space-y-4 p-8 flex flex-col w-full min-h-full overflow-auto transition-all ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[350px]">
       <div className="flex flex-col items-center justify-between">
@@ -89,6 +94,13 @@ export default async function ResultsPage({
               title={chartRecommendation.title}
             />
           </div>
+        </>
+      )}
+      {insight && (
+        <>
+          <Separator />
+          <h2 className="text-xl font-medium text-muted-foreground">Insight</h2>
+          <div className="text-lg">{insight}</div>
         </>
       )}
     </div>

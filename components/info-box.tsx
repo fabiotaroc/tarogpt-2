@@ -16,6 +16,7 @@ export function InfoBox() {
           <li>Translate natural language to SQL</li>
           <li>Execute queries instantly</li>
           <li>View results in a clean, formatted table you can export</li>
+          <li>Automatically generate beautiful charts</li>
         </ul>
       </CardContent>
     </Card>

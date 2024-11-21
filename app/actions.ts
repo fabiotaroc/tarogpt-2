@@ -6,10 +6,11 @@ import { generateObject } from "ai";
 import { tableSchema } from "@/lib/ai-config";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
-import { type Query } from "@/lib/types";
+import { RowData, type Query } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { ChartRecommendation, CHART_TYPES } from '@/lib/chart-types';
 
 export async function translateSQL(userQuestion: string) {
   const prompt = `
@@ -28,6 +29,80 @@ export async function translateSQL(userQuestion: string) {
     }),
   });
   return object[0].query;
+}
+
+export async function getRecommendedChartType(
+  userQuestion: string,
+  sqlQuery: string,
+  rowCount: number
+): Promise<ChartRecommendation> {
+  const prompt = `
+    As a data visualization expert, analyze this user question and its corresponding SQL query to recommend the most appropriate chart type and title.
+    
+    User Question: ${userQuestion}
+    SQL Query: ${sqlQuery}
+    Number of Rows: ${rowCount}
+
+    Available chart types are: ${Object.values(CHART_TYPES).join(', ')}
+
+    Follow these rules strictly:
+    1. If the number of rows is 10 or less, use a pie chart
+    2. If the data contains dates or timestamps, use a line chart
+    3. Otherwise, use a bar chart
+
+    Generate:
+    1. A chart type following the rules above
+    2. A clear, concise title that describes what the chart is showing (max 70 characters)
+    `;
+
+  const { object } = await generateObject({
+    model: openai("gpt-4o-mini"),
+    prompt: prompt,
+    schema: z.object({
+      chartType: z.enum([
+        CHART_TYPES.BAR,
+        CHART_TYPES.LINE,
+        CHART_TYPES.PIE,
+      ]).describe("The recommended chart type"),
+      title: z.string()
+        .max(70)
+        .describe("A clear, concise title describing what the chart shows in less than 70 characters")
+    })
+  });
+
+  return object;
+}
+
+export async function generateInsight(
+  userQuestion: string,
+  queryResult: RowData[]
+) {
+  const prompt = `
+    As a seasoned data analyst, answer the user's question based on the query results, adding intelligent insights where appropriate.
+    
+    User Question: ${userQuestion}
+    Query Results: ${JSON.stringify(queryResult)}
+
+    Rules for insights:
+    1. Be specific and quantitative when possible
+    2. Focus on notable patterns, trends, or anomalies
+    3. Keep each insight concise (max 100 words)
+    4. Ensure insights are directly relevant to the user's question
+    5. Use proper business terminology
+    6. Revenue is always given in EURO
+    `;
+
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    prompt: prompt,
+    schema: z.object({
+      insight: z
+        .string()
+        .describe("A concise, data-driven insight"),
+    }),
+  });
+
+  return object.insight;
 }
 
 export async function executeSQL(query: string) {
@@ -156,3 +231,5 @@ export async function getSharedQuery(id: string) {
 
   return query;
 }
+
+

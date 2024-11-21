@@ -1,9 +1,9 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/ui/codeblock";
-import { QueryResultTable, RowData } from "@/components/ui/query-result-table";
+import { QueryResultTable } from "@/components/ui/query-result-table";
 import { Separator } from "@/components/ui/separator";
-
+import { RowData } from "@/lib/types";
 import { convertBigIntToString, formatDate } from "@/lib/utils";
 import { executeSQL, getSharedQuery, translateSQL } from "@/app/actions";
 import { Footer } from "@/components/footer";

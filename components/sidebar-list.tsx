@@ -17,9 +17,9 @@ export async function SidebarList({ userId }: SidebarListProps) {
   const queries = await loadQueries(userId);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-auto">
+    <div className="flex flex-col min-h-0 flex-1">
+      <div className="flex-1 min-h-0">
+        <div className="h-full overflow-y-auto">
           {queries?.length ? (
             <div className="space-y-2 px-2">
               <SidebarItems queries={queries} />
@@ -31,7 +31,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between p-4 border-t bg-background">
+      <div className="flex items-center justify-between p-4 border-t mt-auto">
         <ThemeToggle />
         <ClearHistory clearQueries={clearQueries} isEnabled={queries?.length > 0} />
       </div>

@@ -11,7 +11,7 @@ import { nanoid } from "nanoid";
 import { useAuth } from "@clerk/nextjs";
 
 export function QueryForm() {
-  const { userId } = useAuth(); // Move useAuth to the top level of the component
+  const { userId } = useAuth();
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -21,23 +21,26 @@ export function QueryForm() {
     if (!query.trim()) return;
 
     setIsLoading(true);
+    const id = nanoid();
+
+    // Create query data
+    const queryData: Query = {
+      id,
+      userId: userId ?? "unknown",
+      question: query,
+      path: `/results/${id}`,
+      createdAt: new Date(),
+    };
+
+    // Start transition to results page immediately
+    router.push(`/results/${id}`);
+
+    // Save query in the background
     try {
-      const id = nanoid();
-
-      const queryData: Query = {
-        id,
-        userId: userId ?? "unknown", // Use userId from useAuth
-        question: query,
-        path: `/results/${id}`,
-        createdAt: new Date(),
-      };
-
       await saveQuery(queryData);
-      console.log("Query saved with ID:", id);
-
-      router.push(`/results/${id}`);
     } catch (error) {
       console.error("Error saving query:", error);
+      // Handle error (query will still be processed)
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +72,7 @@ export function QueryForm() {
           disabled={isLoading}
           className="w-full max-w-md text-lg py-6"
         >
-          {isLoading ? "Translating..." : "Translate and Execute Query"}
+          {isLoading ? "Processing..." : "Ask Question"}
         </Button>
       </form>
     </div>

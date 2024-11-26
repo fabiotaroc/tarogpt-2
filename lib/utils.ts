@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
+import { RowData } from "@/lib/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -80,5 +81,40 @@ export function formatDate(input: string | number | Date): string {
     month: "long",
     day: "numeric",
     year: "numeric",
+  });
+}
+
+
+/**
+ * Determines if the query result data is suitable for visualization
+ * Rules:
+ * 1. Must have at least 2 rows of data
+ * 2. Must have at least 2 columns
+ * 3. Second column must contain numeric values or parseable numeric strings
+ */
+export function isDataSuitableForChart(data: RowData[]): boolean {
+  // Check minimum data requirements
+  if (!Array.isArray(data) || data.length < 2) return false;
+
+  const firstRow = data[0];
+  if (!firstRow || Object.keys(firstRow).length < 2) return false;
+
+  // Get the second column key (for y-axis values)
+  const columns = Object.keys(firstRow);
+  const yAxisColumn = columns[1];
+
+  // Check if at least one row has a numeric value in the second column
+  return data.some(row => {
+    const value = row[yAxisColumn];
+    
+    // Handle different value types
+    if (typeof value === "number") return true;
+    if (typeof value === "string") {
+      const parsed = parseFloat(value);
+      return !isNaN(parsed);
+    }
+    if (typeof value === "bigint") return true;
+    
+    return false;
   });
 }

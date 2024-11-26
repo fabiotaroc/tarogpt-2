@@ -10,6 +10,8 @@ import { type Query } from "@/lib/types";
 import { nanoid } from "nanoid";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { EXAMPLE_QUESTIONS } from "@/lib/constants";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export function QueryForm() {
   const { userId } = useAuth();
@@ -34,9 +36,33 @@ export function QueryForm() {
     };
 
     try {
-      // Save query first
       await saveQuery(queryData);
-      // Only navigate after successful save
+      router.push(`/results/${id}`);
+    } catch (error) {
+      console.error("Error saving query:", error);
+      toast.error("Failed to save query");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleExampleClick = async (question: string) => {
+    if (isLoading) return;
+    
+    setQuery(question);
+    setIsLoading(true);
+    const id = nanoid();
+
+    const queryData: Query = {
+      id,
+      userId: userId ?? "unknown",
+      question,
+      path: `/results/${id}`,
+      createdAt: new Date(),
+    };
+
+    try {
+      await saveQuery(queryData);
       router.push(`/results/${id}`);
     } catch (error) {
       console.error("Error saving query:", error);
@@ -49,7 +75,7 @@ export function QueryForm() {
   return (
     <div className="w-full max-w-screen-md">
       <h2 className="text-4xl font-bold mb-8 text-center">
-        Ask Questions About Your Data
+        Ask Questions About Your Ecommerce Data
       </h2>
       <form
         onSubmit={handleSubmit}
@@ -75,6 +101,26 @@ export function QueryForm() {
           {isLoading ? "Processing..." : "Ask Question"}
         </Button>
       </form>
+      
+      {/* example questions */}
+      <div className="mt-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {EXAMPLE_QUESTIONS.map((example) => (
+            <Card
+              key={example.id}
+              className="cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => handleExampleClick(example.question)}
+            >
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  {example.question}
+                </CardTitle>
+                <CardDescription>{example.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

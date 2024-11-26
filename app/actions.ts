@@ -90,6 +90,8 @@ export async function generateInsight(
     4. Ensure insights are directly relevant to the user's question
     5. Use proper business terminology
     6. Revenue is always given in EURO
+    7. Use Markdown syntax to make key metrics and important findings bold using **bold text** format
+    8. Always wrap numbers, percentages, and key metrics in bold
     `;
 
   const { object } = await generateObject({
@@ -98,7 +100,7 @@ export async function generateInsight(
     schema: z.object({
       insight: z
         .string()
-        .describe("A concise, data-driven insight"),
+        .describe("A concise, data-driven insight with markdown formatting"),
     }),
   });
 

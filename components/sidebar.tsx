@@ -12,9 +12,12 @@ export function Sidebar({ className, children }: React.ComponentProps<"div">) {
   return (
     <div
       data-state={isSidebarOpen && !isLoading ? "open" : "closed"}
-      className={cn(className, "h-full flex-col dark:bg-zinc-950")}
+      className={cn(
+        className,
+        "flex flex-col h-full dark:bg-zinc-950"
+      )}
     >
-      <div className="flex justify-between items-center p-4">
+      <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Query History</h2>
         <SidebarToggle />
       </div>

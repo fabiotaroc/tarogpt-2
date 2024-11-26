@@ -31,7 +31,7 @@ export async function QueryResults({ queryId }: { queryId: string }) {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              The query you're looking for doesn't exist or you don't have permission to view it.
+              The query you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
           </CardContent>
         </Card>
@@ -71,7 +71,7 @@ export async function QueryResults({ queryId }: { queryId: string }) {
       {/* Question Section */}
       <div className="flex flex-col items-center text-center space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">
-          "{queryData.question}"
+          &ldquo;{queryData.question}&rdquo;
         </h1>
         <p className="text-sm text-muted-foreground">
           {formatDate(queryData.createdAt)}

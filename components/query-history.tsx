@@ -13,8 +13,8 @@ interface QueryHistoryProps {
 
 export async function QueryHistory({ userId }: QueryHistoryProps) {
   return (
-    <div className="flex flex-col h-full">
-      <div className="mb-2 px-2">
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="p-2">
         <Link
           href="/"
           className={cn(

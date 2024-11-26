@@ -17,7 +17,11 @@ export function InfoBox() {
           <li>Execute queries instantly</li>
           <li>View results in a clean, formatted table you can export</li>
           <li>Automatically generate beautiful charts</li>
+          <li>Get intelligent insights and answers to your questions</li>
         </ul>
+        <p className="text-sm mt-2 text-muted-foreground">
+          TaroGPT can make mistakes. Check important info.
+        </p>
       </CardContent>
     </Card>
   );

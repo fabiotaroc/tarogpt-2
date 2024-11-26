@@ -9,6 +9,7 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { type Query } from "@/lib/types";
 import { nanoid } from "nanoid";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 export function QueryForm() {
   const { userId } = useAuth();
@@ -32,15 +33,14 @@ export function QueryForm() {
       createdAt: new Date(),
     };
 
-    // Start transition to results page immediately
-    router.push(`/results/${id}`);
-
-    // Save query in the background
     try {
+      // Save query first
       await saveQuery(queryData);
+      // Only navigate after successful save
+      router.push(`/results/${id}`);
     } catch (error) {
       console.error("Error saving query:", error);
-      // Handle error (query will still be processed)
+      toast.error("Failed to save query");
     } finally {
       setIsLoading(false);
     }

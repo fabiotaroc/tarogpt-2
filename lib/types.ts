@@ -26,6 +26,15 @@ export interface User {
   salt: string;
 }
 
+export interface PostgresError {
+  code: string;
+  message: string;
+  detail?: string;
+  schema?: string;
+  table?: string;
+  constraint?: string;
+}
+
 export type CellValue = string | number | Date | bigint | boolean | null | undefined;
 
 export type RowData = Record<string, CellValue>;

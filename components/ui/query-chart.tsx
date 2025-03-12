@@ -1,7 +1,7 @@
 "use client";
 
 import { lazy, Suspense } from "react";
-import { ChartType, CHART_TYPES } from "@/lib/chart-types";
+import { ChartType, CHART_TYPES } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RowData } from "@/lib/types";
 
@@ -29,22 +29,24 @@ function ChartSkeleton() {
   );
 }
 export function QueryChart({ data, chartType, title }: QueryChartProps) {
-  const ChartComponent = ChartComponents[chartType as keyof typeof ChartComponents];
-  const firstTwoColumns = data.length > 0 ? Object.keys(data[0]).slice(0, 2) : [];
+  const ChartComponent =
+    ChartComponents[chartType as keyof typeof ChartComponents];
+  const firstTwoColumns =
+    data.length > 0 ? Object.keys(data[0]).slice(0, 2) : [];
   const [xAxisKey, dataKey] = firstTwoColumns;
 
   return (
     <div className="w-full">
       <Suspense fallback={<ChartSkeleton />}>
         {firstTwoColumns.length >= 2 && (
-          <ChartComponent 
-            data={data} 
-            xAxisKey={xAxisKey} 
-            dataKey={dataKey} 
+          <ChartComponent
+            data={data}
+            xAxisKey={xAxisKey}
+            dataKey={dataKey}
             title={title}
           />
         )}
       </Suspense>
     </div>
   );
-} 
+}

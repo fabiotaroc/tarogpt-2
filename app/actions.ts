@@ -10,7 +10,7 @@ import { RowData, type Query, PostgresError } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { ChartRecommendation, CHART_TYPES } from "@/lib/chart-types";
+import { ChartRecommendation, CHART_TYPES } from "@/lib/types";
 import { Prisma } from "@prisma/client";
 
 export async function translateSQL(
@@ -102,27 +102,33 @@ export async function generateInsight(
 ) {
   // Limit the data sent to OpenAI to avoid token limits
   const MAX_ROWS = 50;
-  const summarizedData = queryResult.length > MAX_ROWS 
-    ? {
-        totalRows: queryResult.length,
-        preview: queryResult.slice(0, MAX_ROWS),
-        summary: {
-          columns: Object.keys(queryResult[0]),
-          uniqueValues: Object.keys(queryResult[0]).reduce((acc, key) => {
-            acc[key] = new Set(queryResult.map(row => row[key])).size;
-            return acc;
-          }, {} as Record<string, number>)
+  const summarizedData =
+    queryResult.length > MAX_ROWS
+      ? {
+          totalRows: queryResult.length,
+          preview: queryResult.slice(0, MAX_ROWS),
+          summary: {
+            columns: Object.keys(queryResult[0]),
+            uniqueValues: Object.keys(queryResult[0]).reduce(
+              (acc, key) => {
+                acc[key] = new Set(queryResult.map((row) => row[key])).size;
+                return acc;
+              },
+              {} as Record<string, number>
+            ),
+          },
         }
-      }
-    : queryResult;
+      : queryResult;
 
   const prompt = `
-    As a seasoned data analyst, answer the user's question based on the ${queryResult.length > MAX_ROWS ? 'summarized' : 'complete'} query results.
+    As a seasoned data analyst, answer the user's question based on the ${queryResult.length > MAX_ROWS ? "summarized" : "complete"} query results.
     
     User Question: ${userQuestion}
-    ${queryResult.length > MAX_ROWS 
-      ? `Total Rows: ${queryResult.length}\nAnalyzing first ${MAX_ROWS} rows with column statistics.` 
-      : 'Analyzing complete dataset.'}
+    ${
+      queryResult.length > MAX_ROWS
+        ? `Total Rows: ${queryResult.length}\nAnalyzing first ${MAX_ROWS} rows with column statistics.`
+        : "Analyzing complete dataset."
+    }
     Query Results: ${JSON.stringify(summarizedData)}
 
     Rules for insights:
@@ -150,10 +156,47 @@ export async function generateInsight(
 }
 
 export async function executeSQL(query: string) {
+  console.log(
+    `🔍 [executeSQL] Starting execution in environment: ${process.env.NODE_ENV || "development"}`
+  );
+  console.log(
+    `🔍 [executeSQL] Runtime context: ${process.env.VERCEL_REGION || "local"}, Edge: ${typeof process.env.EDGE_RUNTIME !== "undefined" ? "Yes" : "No"}`
+  );
+  console.log(
+    `🔍 [executeSQL] Query: ${query.substring(0, 100)}${query.length > 100 ? "..." : ""}`
+  );
+
   try {
+    console.log(
+      `🔍 [executeSQL] About to execute query with prisma.$queryRawUnsafe`
+    );
+    const startTime = Date.now();
     const result = await prisma.$queryRawUnsafe(query);
+    const duration = Date.now() - startTime;
+
+    console.log(`✅ [executeSQL] Query executed successfully in ${duration}ms`);
+    console.log(
+      `✅ [executeSQL] Result type: ${typeof result}, isArray: ${Array.isArray(result)}`
+    );
+    if (Array.isArray(result)) {
+      console.log(`✅ [executeSQL] Returned ${result.length} rows`);
+      if (result.length > 0) {
+        console.log(
+          `✅ [executeSQL] First row keys: ${Object.keys(result[0]).join(", ")}`
+        );
+      }
+    }
+
     return { success: true, data: result };
   } catch (error) {
+    console.error(`❌ [executeSQL] Error executing query:`, error);
+    console.error(
+      `❌ [executeSQL] Error type: ${error instanceof Error ? error.constructor.name : "Unknown"}`
+    );
+    console.error(
+      `❌ [executeSQL] Error message: ${error instanceof Error ? error.message : String(error)}`
+    );
+
     const pgError: PostgresError = {
       code: "UNKNOWN_ERROR",
       message: "Failed to execute query",
@@ -175,20 +218,39 @@ export async function executeSQL(query: string) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       pgError.code = error.code;
       pgError.message = error.message;
-      if (error.meta) {
-        pgError.detail = error.meta.cause as string;
+      if (error.meta && typeof error.meta.cause === "string") {
+        pgError.detail = error.meta.cause;
       }
       Object.assign(errorLog, {
         prismaCode: error.code,
         prismaClientVersion: error.clientVersion,
         prismaTarget: error.meta,
       });
+
+      console.error(`❌ [executeSQL] PrismaClientKnownRequestError details:`, {
+        code: error.code,
+        clientVersion: error.clientVersion,
+        meta: error.meta,
+      });
     } else if (error instanceof Prisma.PrismaClientValidationError) {
       pgError.code = "VALIDATION_ERROR";
       pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientValidationError`);
     } else if (error instanceof Prisma.PrismaClientRustPanicError) {
       pgError.code = "QUERY_ENGINE_ERROR";
       pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientRustPanicError`);
+    } else if (error instanceof Prisma.PrismaClientInitializationError) {
+      pgError.code = "INITIALIZATION_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientInitializationError:`, {
+        errorCode: error.errorCode,
+        clientVersion: error.clientVersion,
+      });
+    } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+      pgError.code = "UNKNOWN_REQUEST_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientUnknownRequestError`);
     }
 
     if (process.env.NODE_ENV === "production") {
@@ -204,7 +266,16 @@ export async function executeSQL(query: string) {
       details: pgError,
     };
   } finally {
-    await prisma.$disconnect();
+    console.log(`🔍 [executeSQL] Disconnecting Prisma client`);
+    try {
+      await prisma.$disconnect();
+      console.log(`✅ [executeSQL] Prisma client disconnected successfully`);
+    } catch (disconnectError) {
+      console.error(
+        `❌ [executeSQL] Error disconnecting Prisma client:`,
+        disconnectError
+      );
+    }
   }
 }
 

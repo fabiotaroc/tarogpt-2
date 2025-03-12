@@ -1,0 +1,8 @@
+---
+description: When working with langgraph ai agents
+globs: 
+---
+
+This project has a /agent subpage which allows users to chat with an ai agent that translates sql queries, executes them against a remote database, and show the results in appropriate graphs, and genereate insights. 
+
+It uses the langgraph framework from langchain, and is hosted on vercel using the ai sdk as seen in [chat-window.tsx](mdc:components/chat/chat-window.tsx)

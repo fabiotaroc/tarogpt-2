@@ -1,9 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher("/(.*)");
+// All routes should be protected
+const isProtectedRoute = createRouteMatcher(["/(.*)"]);
 
 export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) auth().protect();
+  // Skip authentication in development mode for API routes
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const isApiRoute =
+    req.url.includes("/api/") || req.url.includes("/agent/api");
+
+  // Protect all routes with authentication except API routes in development
+  if (isProtectedRoute(req) && !(isDevelopment && isApiRoute)) {
+    auth().protect();
+  }
 });
 
 export const config = {

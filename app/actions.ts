@@ -6,18 +6,40 @@ import { generateObject } from "ai";
 import { tableSchema } from "@/lib/ai-config";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
-import { RowData, type Query } from "@/lib/types";
+import { RowData, type Query, PostgresError } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { ChartRecommendation, CHART_TYPES } from '@/lib/chart-types';
+import { ChartRecommendation, CHART_TYPES } from "@/lib/types";
+import { Prisma } from "@prisma/client";
 
-export async function translateSQL(userQuestion: string) {
+export async function translateSQL(
+  userQuestion: string,
+  previousQuery?: string,
+  previousError?: PostgresError
+) {
+  const errorContext = previousError
+    ? `
+    Previous query failed with error code ${previousError.code}: ${previousError.message}
+    Failed query: ${previousQuery}
+    Please fix the issues and generate a new query.
+    `
+    : "";
+
   const prompt = `
     You are an expert in PostgreSQL and have intimate knowledge of this table schema: ${tableSchema}
 
-    Read the user question: ${userQuestion}, reason about what to extract from the database to best answer the user question, 
+    Read the user question: ${userQuestion}
+    ${errorContext}
+    
+    Reason about what to extract from the database to best answer the user question, 
     and output a valid PostgreSQL SELECT query.
+
+    If there was a previous error:
+    1. Analyze the error message carefully
+    2. Ensure the new query addresses the specific error
+    3. Validate column names and syntax
+    4. Consider adding appropriate WHERE clauses or JOIN conditions
     `;
 
   const { object } = await generateObject({
@@ -43,7 +65,7 @@ export async function getRecommendedChartType(
     SQL Query: ${sqlQuery}
     Number of Rows: ${rowCount}
 
-    Available chart types are: ${Object.values(CHART_TYPES).join(', ')}
+    Available chart types are: ${Object.values(CHART_TYPES).join(", ")}
 
     Follow these rules strictly:
     1. If the number of rows is 10 or less, use a pie chart
@@ -59,15 +81,16 @@ export async function getRecommendedChartType(
     model: openai("gpt-4o-mini"),
     prompt: prompt,
     schema: z.object({
-      chartType: z.enum([
-        CHART_TYPES.BAR,
-        CHART_TYPES.LINE,
-        CHART_TYPES.PIE,
-      ]).describe("The recommended chart type"),
-      title: z.string()
+      chartType: z
+        .enum([CHART_TYPES.BAR, CHART_TYPES.LINE, CHART_TYPES.PIE])
+        .describe("The recommended chart type"),
+      title: z
+        .string()
         .max(70)
-        .describe("A clear, concise title describing what the chart shows in less than 70 characters")
-    })
+        .describe(
+          "A clear, concise title describing what the chart shows in less than 70 characters"
+        ),
+    }),
   });
 
   return object;
@@ -77,11 +100,36 @@ export async function generateInsight(
   userQuestion: string,
   queryResult: RowData[]
 ) {
+  // Limit the data sent to OpenAI to avoid token limits
+  const MAX_ROWS = 50;
+  const summarizedData =
+    queryResult.length > MAX_ROWS
+      ? {
+          totalRows: queryResult.length,
+          preview: queryResult.slice(0, MAX_ROWS),
+          summary: {
+            columns: Object.keys(queryResult[0]),
+            uniqueValues: Object.keys(queryResult[0]).reduce(
+              (acc, key) => {
+                acc[key] = new Set(queryResult.map((row) => row[key])).size;
+                return acc;
+              },
+              {} as Record<string, number>
+            ),
+          },
+        }
+      : queryResult;
+
   const prompt = `
-    As a seasoned data analyst, answer the user's question based on the query results, adding intelligent insights where appropriate.
+    As a seasoned data analyst, answer the user's question based on the ${queryResult.length > MAX_ROWS ? "summarized" : "complete"} query results.
     
     User Question: ${userQuestion}
-    Query Results: ${JSON.stringify(queryResult)}
+    ${
+      queryResult.length > MAX_ROWS
+        ? `Total Rows: ${queryResult.length}\nAnalyzing first ${MAX_ROWS} rows with column statistics.`
+        : "Analyzing complete dataset."
+    }
+    Query Results: ${JSON.stringify(summarizedData)}
 
     Rules for insights:
     1. Be specific and quantitative when possible
@@ -90,7 +138,7 @@ export async function generateInsight(
     4. Ensure insights are directly relevant to the user's question
     5. Use proper business terminology
     6. Revenue is always given in EURO
-    7. Use Markdown syntax to make key metrics and important findings bold using **bold text** format
+    7. Use Markdown syntax for key metrics using **bold text**
     8. Always wrap numbers, percentages, and key metrics in bold
     `;
 
@@ -108,19 +156,126 @@ export async function generateInsight(
 }
 
 export async function executeSQL(query: string) {
+  console.log(
+    `🔍 [executeSQL] Starting execution in environment: ${process.env.NODE_ENV || "development"}`
+  );
+  console.log(
+    `🔍 [executeSQL] Runtime context: ${process.env.VERCEL_REGION || "local"}, Edge: ${typeof process.env.EDGE_RUNTIME !== "undefined" ? "Yes" : "No"}`
+  );
+  console.log(
+    `🔍 [executeSQL] Query: ${query.substring(0, 100)}${query.length > 100 ? "..." : ""}`
+  );
+
   try {
-    console.log("Connecting to database...");
+    console.log(
+      `🔍 [executeSQL] About to execute query with prisma.$queryRawUnsafe`
+    );
+    const startTime = Date.now();
     const result = await prisma.$queryRawUnsafe(query);
+    const duration = Date.now() - startTime;
+
+    console.log(`✅ [executeSQL] Query executed successfully in ${duration}ms`);
+    console.log(
+      `✅ [executeSQL] Result type: ${typeof result}, isArray: ${Array.isArray(result)}`
+    );
+    if (Array.isArray(result)) {
+      console.log(`✅ [executeSQL] Returned ${result.length} rows`);
+      if (result.length > 0) {
+        console.log(
+          `✅ [executeSQL] First row keys: ${Object.keys(result[0]).join(", ")}`
+        );
+      }
+    }
+
     return { success: true, data: result };
   } catch (error) {
-    console.error("Error executing SQL query:", error);
+    console.error(`❌ [executeSQL] Error executing query:`, error);
+    console.error(
+      `❌ [executeSQL] Error type: ${error instanceof Error ? error.constructor.name : "Unknown"}`
+    );
+    console.error(
+      `❌ [executeSQL] Error message: ${error instanceof Error ? error.message : String(error)}`
+    );
+
+    const pgError: PostgresError = {
+      code: "UNKNOWN_ERROR",
+      message: "Failed to execute query",
+    };
+
+    const errorLog = {
+      timestamp: new Date().toISOString(),
+      query,
+      error:
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : "Unknown error type",
+    };
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      pgError.code = error.code;
+      pgError.message = error.message;
+      if (error.meta && typeof error.meta.cause === "string") {
+        pgError.detail = error.meta.cause;
+      }
+      Object.assign(errorLog, {
+        prismaCode: error.code,
+        prismaClientVersion: error.clientVersion,
+        prismaTarget: error.meta,
+      });
+
+      console.error(`❌ [executeSQL] PrismaClientKnownRequestError details:`, {
+        code: error.code,
+        clientVersion: error.clientVersion,
+        meta: error.meta,
+      });
+    } else if (error instanceof Prisma.PrismaClientValidationError) {
+      pgError.code = "VALIDATION_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientValidationError`);
+    } else if (error instanceof Prisma.PrismaClientRustPanicError) {
+      pgError.code = "QUERY_ENGINE_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientRustPanicError`);
+    } else if (error instanceof Prisma.PrismaClientInitializationError) {
+      pgError.code = "INITIALIZATION_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientInitializationError:`, {
+        errorCode: error.errorCode,
+        clientVersion: error.clientVersion,
+      });
+    } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+      pgError.code = "UNKNOWN_REQUEST_ERROR";
+      pgError.message = error.message;
+      console.error(`❌ [executeSQL] PrismaClientUnknownRequestError`);
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      console.error("PostgreSQL Error:", JSON.stringify(errorLog, null, 2));
+    } else {
+      console.error("PostgreSQL Error:", errorLog);
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to execute query",
+      error: pgError.message,
+      code: pgError.code,
+      details: pgError,
     };
   } finally {
-    await prisma.$disconnect();
-    console.log("Disconnected from database.");
+    console.log(`🔍 [executeSQL] Disconnecting Prisma client`);
+    try {
+      await prisma.$disconnect();
+      console.log(`✅ [executeSQL] Prisma client disconnected successfully`);
+    } catch (disconnectError) {
+      console.error(
+        `❌ [executeSQL] Error disconnecting Prisma client:`,
+        disconnectError
+      );
+    }
   }
 }
 
@@ -233,5 +388,3 @@ export async function getSharedQuery(id: string) {
 
   return query;
 }
-
-

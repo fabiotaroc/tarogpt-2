@@ -1,8 +1,19 @@
-import Link from 'next/link'
-import { LinkedInLogoIcon, GitHubLogoIcon, InfoCircledIcon } from '@radix-ui/react-icons'
+"use client";
+
+import Link from "next/link";
+import {
+  LinkedInLogoIcon,
+  GitHubLogoIcon,
+  InfoCircledIcon,
+} from "@radix-ui/react-icons";
 import { SignedIn, UserButton } from "@clerk/nextjs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { InfoBox } from '@/components/info-box'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { InfoBox } from "@/components/info-box";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 export function Header() {
   return (
@@ -36,6 +47,7 @@ export function Header() {
           >
             <LinkedInLogoIcon className="w-6 h-6" />
           </Link>
+          <ModeToggle />
         </div>
         <SignedIn>
           <UserButton />

@@ -11,42 +11,54 @@ import { QueryChart } from "@/components/ui/query-chart";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@clerk/nextjs/server";
 import { isDataSuitableForChart } from "@/lib/utils";
-import { RowData } from "@/lib/types";
+import { RowData, PostgresError } from "@/lib/types";
 import { convertBigIntToString } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { InsightCard } from "@/components/ui/insight-card";
 import { maskSensitiveData } from "@/lib/utils";
+import { QueryNotFoundCard } from "./ui/query-not-found-card";
 
 export async function QueryResults({ queryId }: { queryId: string }) {
   const { userId } = auth();
   const queryData = await getQuery(queryId, userId ?? "unknown");
 
   if (!queryData) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-destructive">Query Not Found</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              The query you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <QueryNotFoundCard />;
   }
 
-  const [translatedQuery, result] = await Promise.all([
-    translateSQL(queryData.question),
-    executeSQL(await translateSQL(queryData.question))
-  ]);
+  // Maximum number of retries for SQL translation
+  const MAX_RETRIES = 3;
+  let currentTry = 0;
+  let translatedQuery: string | undefined = undefined;
+  let result: Awaited<ReturnType<typeof executeSQL>> | null = null;
+  let previousError: PostgresError | undefined = undefined;
 
-  const maskedQuery = maskSensitiveData(translatedQuery);
+  while (currentTry < MAX_RETRIES) {
+    const translation = await translateSQL(
+      queryData.question,
+      translatedQuery,
+      previousError
+    );
 
-  const queryResult = result.success
+    translatedQuery = translation;
+    result = await executeSQL(translation);
+
+    if (result.success) {
+      break;
+    }
+
+    previousError = result.details;
+    currentTry++;
+
+    // If we've hit max retries, break to show the last error
+    if (currentTry === MAX_RETRIES) {
+      break;
+    }
+  }
+
+  const maskedQuery = maskSensitiveData(translatedQuery ?? '');
+  const queryResult = result?.success
     ? (convertBigIntToString(result.data) as RowData[])
     : [];
 
@@ -57,7 +69,7 @@ export async function QueryResults({ queryId }: { queryId: string }) {
     canShowChart
       ? getRecommendedChartType(
           queryData.question,
-          translatedQuery,
+          translatedQuery ?? '',
           queryResult.length
         )
       : Promise.resolve(null),
@@ -131,7 +143,7 @@ export async function QueryResults({ queryId }: { queryId: string }) {
       )}
 
       {/* Error Message */}
-      {!result.success && (
+      {result && !result.success && (
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive">
@@ -145,4 +157,4 @@ export async function QueryResults({ queryId }: { queryId: string }) {
       )}
     </div>
   );
-} 
+}

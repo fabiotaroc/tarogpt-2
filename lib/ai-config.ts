@@ -1,4 +1,4 @@
-export const tableSchema = `\
+export const tableSchema = `
 # table name: bluelagoon_skincare_consulting_prod.moe_new
 
 ## columns: 

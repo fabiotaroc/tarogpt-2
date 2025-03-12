@@ -39,7 +39,7 @@ export const ExecuteSQLTool = makeAssistantToolUI<ExecuteSQLArgs, string>({
     let resultObj: ExecuteSQLResult;
     try {
       resultObj = JSON.parse(result ?? "");
-    } catch (e) {
+    } catch {
       return <QueryErrorCard error={result ?? "Unknown error"} />;
     }
 
@@ -67,7 +67,7 @@ export const RecommendChartTool = makeAssistantToolUI<
     let chartRec: ChartRecommendation;
     try {
       chartRec = JSON.parse(result ?? "{}");
-    } catch (e) {
+    } catch {
       return (
         <p className="text-red-500">Failed to parse chart recommendation</p>
       );

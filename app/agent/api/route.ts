@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       currentQuestion,
       sqlQuery: "",
       queryResults: [],
-      chartRecommendation: "",
+      chartRecommendation: undefined,
       insight: "",
       nodeVisitCounts: {},
       errors: [],
@@ -91,15 +91,18 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (e: any) {
-    console.error("Agent error:", e.message);
+  } catch (e: unknown) {
+    console.error("Agent error:", e instanceof Error ? e.message : String(e));
     return NextResponse.json(
       {
-        error: e.message || "An error occurred during processing",
+        error:
+          e instanceof Error
+            ? e.message
+            : "An error occurred during processing",
         message:
           "There was a problem with the data analysis. Please try rephrasing your question or ask something simpler.",
       },
-      { status: e.status ?? 500 }
+      { status: (e as { status?: number }).status ?? 500 }
     );
   }
 }

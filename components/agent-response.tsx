@@ -8,13 +8,31 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InsightCard } from "@/components/ui/insight-card";
 import { formatDate } from "@/lib/utils";
+import { RowData, ChartType } from "@/lib/types";
 
 interface AgentResponseProps {
   responseData: string;
 }
 
+interface ParsedAgentResponse {
+  question: string;
+  translatedQuery: string;
+  result: {
+    success: boolean;
+    data: RowData[];
+    error?: string;
+  };
+  chartRecommendation?: {
+    chartType: ChartType;
+    title: string;
+  };
+  insight?: string;
+}
+
 export function AgentResponse({ responseData }: AgentResponseProps) {
-  const [parsedData, setParsedData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<ParsedAgentResponse | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

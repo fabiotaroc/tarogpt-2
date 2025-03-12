@@ -21,7 +21,7 @@ export function IntermediateStep(props: { message: Message }) {
           "text-left flex items-center gap-1",
           expanded && "w-full"
         )}
-        onClick={(e) => setExpanded(!expanded)}
+        onClick={() => setExpanded(!expanded)}
       >
         <span>
           Step:{" "}

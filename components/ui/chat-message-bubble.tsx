@@ -1,10 +1,22 @@
 import { cn } from "@/lib/utils";
 import type { Message } from "ai/react";
 
+interface Source {
+  pageContent: string;
+  metadata?: {
+    loc?: {
+      lines?: {
+        from: number;
+        to: number;
+      };
+    };
+  };
+}
+
 export function ChatMessageBubble(props: {
   message: Message;
   aiEmoji?: string;
-  sources: any[];
+  sources: Source[];
 }) {
   return (
     <div

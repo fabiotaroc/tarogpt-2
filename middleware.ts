@@ -9,8 +9,17 @@ export default clerkMiddleware((auth, req) => {
   const isApiRoute =
     req.url.includes("/api/") || req.url.includes("/agent/api");
 
+  // Check if the request is from the same origin (for API routes in production)
+  const origin = req.headers.get("origin");
+  const host = req.headers.get("host");
+  const isSameOrigin = origin && host && origin.includes(host);
+
+  // Allow API requests from same origin or in development mode
+  const shouldAllowApiRequest = isApiRoute && (isDevelopment || isSameOrigin);
+
   // Protect all routes with authentication except API routes in development
-  if (isProtectedRoute(req) && !(isDevelopment && isApiRoute)) {
+  // or API routes from the same origin in production
+  if (isProtectedRoute(req) && !shouldAllowApiRequest) {
     auth().protect();
   }
 });

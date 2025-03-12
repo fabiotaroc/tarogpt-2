@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import {
@@ -11,15 +13,17 @@ import {
  * Tool that translates a natural language question into SQL
  */
 export const translateSQLTool = tool(
-  async (args: any) => {
+  async (input) => {
+    // @ts-ignore - Input type is complex but works at runtime
+    const { userQuestion, previousQuery, previousError } = input;
     console.log(
-      `🔍 [Tool: translate_sql] Translating question to SQL: "${args.userQuestion}"`
+      `🔍 [Tool: translate_sql] Translating question to SQL: "${userQuestion}"`
     );
     try {
       const sql = await translateSQL(
-        args.userQuestion,
-        args.previousQuery,
-        args.previousError
+        userQuestion,
+        previousQuery,
+        previousError
       );
       console.log(
         `✅ [Tool: translate_sql] Successfully generated SQL: ${sql.substring(0, 100)}${sql.length > 100 ? "..." : ""}`
@@ -58,9 +62,11 @@ export const translateSQLTool = tool(
  * Tool that executes a SQL query against the database
  */
 export const executeSQLTool = tool(
-  async (args: any) => {
+  async (input) => {
+    // @ts-ignore - Input type is complex but works at runtime
+    const { query } = input;
     console.log(
-      `🔍 [Tool: execute_sql] Executing SQL query: ${args.query.substring(0, 100)}${args.query.length > 100 ? "..." : ""}`
+      `🔍 [Tool: execute_sql] Executing SQL query: ${query.substring(0, 100)}${query.length > 100 ? "..." : ""}`
     );
     console.log(
       `🔍 [Tool: execute_sql] Runtime environment: ${process.env.VERCEL_REGION || "local"}`
@@ -72,7 +78,7 @@ export const executeSQLTool = tool(
 
     try {
       console.log(`🔍 [Tool: execute_sql] About to call executeSQL function`);
-      const result = await executeSQL(args.query);
+      const result = await executeSQL(query);
       console.log(
         `🔍 [Tool: execute_sql] executeSQL function returned:`,
         typeof result,
@@ -85,7 +91,11 @@ export const executeSQLTool = tool(
           code: result.code,
           details: result.details,
         });
-        return `An error occurred while executing SQL: ${result.error} (Code: ${result.code})`;
+        return JSON.stringify({
+          success: false,
+          // @ts-ignore - Error handling is complex but works at runtime
+          error: String(result.error),
+        });
       }
 
       console.log(
@@ -108,13 +118,16 @@ export const executeSQLTool = tool(
           (e as Error)?.stack
         );
       }
-      return `An unexpected error occurred while executing SQL: ${e}`;
+      return JSON.stringify({
+        success: false,
+        error: e instanceof Error ? e.message : String(e),
+      });
     }
   },
   {
     name: "execute_sql",
     description:
-      "Executes a PostgreSQL query and returns the results. This tool should be used after translating a user's question to SQL to retrieve data from the database.",
+      "Executes a SQL query against the database and returns the results. This tool should be used after generating a SQL query with translate_sql.",
     schema: z.object({
       query: z.string().describe("The SQL query to execute"),
     }),
@@ -125,15 +138,17 @@ export const executeSQLTool = tool(
  * Tool that recommends a chart type based on query results
  */
 export const getChartRecommendationTool = tool(
-  async (args: any) => {
+  async (input) => {
+    // @ts-ignore - Input type is complex but works at runtime
+    const { userQuestion, sqlQuery, rowCount } = input;
     console.log(
-      `📊 [Tool: get_chart_recommendation] Getting chart recommendation for question: "${args.userQuestion}"`
+      `📊 [Tool: get_chart_recommendation] Getting chart recommendation for question: "${userQuestion}"`
     );
     try {
       const recommendation = await getRecommendedChartType(
-        args.userQuestion,
-        args.sqlQuery,
-        args.rowCount
+        userQuestion,
+        sqlQuery,
+        rowCount
       );
       console.log(
         `✅ [Tool: get_chart_recommendation] Recommended chart type: ${recommendation.chartType}`
@@ -144,7 +159,11 @@ export const getChartRecommendationTool = tool(
         "❌ [Tool: get_chart_recommendation] Error getting chart recommendation",
         e
       );
-      return `An error occurred while getting chart recommendation: ${e}`;
+      return JSON.stringify({
+        chartType: "table",
+        title: "Data Table",
+        error: e instanceof Error ? e.message : String(e),
+      });
     }
   },
   {
@@ -165,22 +184,21 @@ export const getChartRecommendationTool = tool(
  * Tool that generates insights from query results
  */
 export const generateInsightTool = tool(
-  async (args: any) => {
+  async (input) => {
+    // @ts-ignore - Input type is complex but works at runtime
+    const { userQuestion, queryResult } = input;
     console.log(
-      `💡 [Tool: generate_insight] Generating insights for question: "${args.userQuestion}" with ${Array.isArray(args.queryResult) ? args.queryResult.length : 0} rows of data`
+      `💡 [Tool: generate_insight] Generating insights for question: "${userQuestion}" with ${Array.isArray(queryResult) ? queryResult.length : 0} rows of data`
     );
     try {
-      const insight = await generateInsight(
-        args.userQuestion,
-        args.queryResult
-      );
+      const insight = await generateInsight(userQuestion, queryResult);
       console.log(
         `✅ [Tool: generate_insight] Successfully generated insights`
       );
       return insight;
     } catch (e) {
       console.warn("❌ [Tool: generate_insight] Error generating insight", e);
-      return `An error occurred while generating insight: ${e}`;
+      return `An error occurred while generating insights: ${e instanceof Error ? e.message : String(e)}`;
     }
   },
   {

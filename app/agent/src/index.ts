@@ -16,20 +16,27 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { SYSTEM_PROMPT } from "./prompts";
 import { tools } from "./tools";
 import { maskSensitiveData } from "@/lib/utils";
-import { PostgresError } from "@/lib/types";
+import { PostgresError, RowData } from "@/lib/types";
 
 // Define the state for our workflow with annotations
 const GraphAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,
   currentQuestion: Annotation<string>(),
   sqlQuery: Annotation<string | undefined>(),
-  queryResults: Annotation<any[] | undefined>(),
-  chartRecommendation: Annotation<any | undefined>(),
+  queryResults: Annotation<RowData[] | undefined>(),
+  chartRecommendation: Annotation<ChartRecommendation | undefined>(),
   insight: Annotation<string | undefined>(),
   nodeVisitCounts: Annotation<Record<string, number>>(), // Track node visits
   errors: Annotation<PostgresError[] | undefined>(), // Track errors for retry logic
   retryCount: Annotation<number>(), // Track retry attempts
 });
+
+// Define the ChartRecommendation type
+interface ChartRecommendation {
+  chartType: string;
+  title: string;
+  [key: string]: unknown;
+}
 
 // Export the state type for use in the API route
 export type AgentState = typeof GraphAnnotation.State;

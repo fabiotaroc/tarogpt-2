@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaroGPT - Smart Database Interface
 
-## Getting Started
+<p align="center">
+  <img src="public/home.png" alt="TaroGPT Home" width="500">
+</p>
 
-First, run the development server:
+TaroGPT is an intelligent natural language interface to PostgreSQL databases. It enables users to query databases using plain English, get visual representations of data, and receive AI-powered insights without writing any SQL code.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+> **Disclaimer**: All data used in this application is fictional. Any resemblance to real companies, products, or actual data is purely coincidental and unintentional.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**✨ Try it out: [tarohq.dev](https://tarohq.dev) - Sign up for free and start exploring the data!**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌟 Core Functionality
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The main feature of TaroGPT is its **Q&A interface** that allows you to:
 
-## Learn More
+1. Ask questions about your data in plain English
+2. Get instant SQL translations of your questions
+3. View query results in clean, organized tables
+4. Receive automatically generated data visualizations
+5. Get AI-powered insights about your data
 
-To learn more about Next.js, take a look at the following resources:
+<div align="center">
+  <img src="public/how-it-works.png" alt="How TaroGPT Works" width="500">
+  <p><em>How TaroGPT transforms natural language into insights</em></p>
+</div>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The **Data Analysis Agent** (currently in beta) provides an enhanced experience with multi-step reasoning and more comprehensive analysis capabilities.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Tech Stack
 
-## Deploy on Vercel
+- **Frontend**: Next.js 14 with App Router, React, TypeScript
+- **UI Components**: Shadcn UI, Radix UI, and Tailwind CSS
+- **AI Models**: OpenAI GPT-4o for natural language processing
+- **Database**: PostgreSQL with Prisma ORM
+- **Chat History**: Redis KV for chat history
+- **Agent Framework**: LangGraph for creating an advanced data analysis workflow
+- **Authentication**: Clerk for secure user management
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+<div align="center">
+  <img src="public/cloud-architecture.png" alt="TaroGPT Architecture" width="500">
+  <p><em>TaroGPT's cloud architecture</em></p>
+</div>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Setup & Deployment
+
+### Quick Start
+
+1. Clone the repository
+2. Set up environment variables (see `.env.example`)
+3. Run `yarn install` and `yarn dev`
+
+### Vercel Deployment
+
+1. Push to GitHub (sensitive files are gitignored)
+2. Connect to Vercel and configure environment variables
+3. Deploy

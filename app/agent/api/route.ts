@@ -28,9 +28,11 @@ export async function POST(req: NextRequest) {
     // For development, we'll allow requests without an origin header (like direct API calls)
     // In production, this should be more restrictive
     if (origin) {
-      const allowedOrigins = [process.env.NEXT_PUBLIC_BASE_URL || ""].filter(
-        Boolean
-      );
+      const allowedOrigins = [
+        process.env.NEXT_PUBLIC_BASE_URL || "",
+        "https://www.tarohq.dev",
+        "https://tarohq.dev",
+      ].filter(Boolean);
 
       // Allow any localhost origin for development
       const isLocalhost =

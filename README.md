@@ -8,7 +8,6 @@ TaroGPT is an intelligent natural language interface to PostgreSQL databases. It
 
 > **Disclaimer**: All data used in this application is fictional. Any resemblance to real companies, products, or actual data is purely coincidental and unintentional.
 
-**✨ Try it out: [tarohq.dev](https://tarohq.dev) - Sign up for free and start exploring the data!**
 
 ## 🌟 Core Functionality
 
